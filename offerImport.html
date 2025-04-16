@@ -8,41 +8,56 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-    <button id="returnHome" class="return-btn">←</button>
+  <button id="returnHome" class="return-btn">←</button>
 
-    <div class="container">
-        <img src="images/ExploraLogo.png" alt="Explora Logo" class="logo2">
-        <h1>CSV OFFER</h1>
-        <label for="excelFile" class="csv-btn" style="display: inline-block; margin-bottom: 20px;">
-            Import Excel
-        </label>
-        <input type="file" id="excelFile" accept=".xlsx, .xls" style="display: none;" />          
-        <div class="table-container">
-            <table id="excelTable" contenteditable="true">          
-            <thead>
-                <tr>
-                <th>PKG_CODES</th>
-                <th>Promo Code</th>
-                <th>Name</th>
-                <th>Title</th>
-                <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td contenteditable="true"></td>
-                    <td contenteditable="true"></td>
-                    <td contenteditable="true"></td>
-                    <td contenteditable="true"></td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <!-- JavaScript populates this -->
-            </tbody>
-            </table>
-        </div>
-        <p class="tip">💡 Tip: Copy rows from Excel and paste them directly below.</p>
-        <button id="createCSV" class="csv-btn">CREATE CSV</button>
+  <div class="container">
+    <img src="images/ExploraLogo.png" alt="Explora Logo" class="logo2">
+    <h1>CSV OFFER</h1>
+
+    <!-- Language selector and import button grouped -->
+    <div class="import-controls">
+      <label for="excelFile" class="csv-btn">
+        Import Excel
+      </label>
+      <input type="file" id="excelFile" accept=".xlsx, .xls" style="display: none;" />
+
+      <div class="language-selector-inline">
+        <select id="languageSelect" class="csv-btn">
+          <option value="EN">EN (English)</option>
+          <option value="DE">DE (German)</option>
+          <option value="FR">FR (French)</option>
+          <option value="IT">IT (Italian)</option>
+          <option value="ES">ES (Spanish)</option>
+        </select>
+      </div>
     </div>
+
+    <!-- Scrollable table container -->
+    <div class="table-container">
+      <table id="excelTable" contenteditable="true">
+        <thead>
+          <tr>
+            <th>PKG_CODES</th>
+            <th>Promo Code</th>
+            <th>Name</th>
+            <th>Title</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td contenteditable="true"></td>
+            <td contenteditable="true"></td>
+            <td contenteditable="true"></td>
+            <td contenteditable="true"></td>
+            <td contenteditable="true"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button id="createCSV" class="csv-btn">CREATE CSV</button>
+  </div>
 
   <script src="script.js"></script>
 </body>

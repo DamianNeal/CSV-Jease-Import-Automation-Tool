@@ -51,6 +51,15 @@ if (window.location.pathname.includes("offerImport.html")) {
   const returnBtn = document.getElementById("returnHome");
   const excelInput = document.getElementById("excelFile");
 
+  let selectedLanguage = "EN";
+  const languageSelect = document.getElementById("languageSelect");
+  if (languageSelect) {
+    languageSelect.addEventListener("change", (e) => {
+      selectedLanguage = e.target.value;
+      console.log("Selected Language:", selectedLanguage);
+    });
+  }
+
   if (returnBtn) {
     returnBtn.addEventListener("click", () => {
       window.location.href = "offer.html";
