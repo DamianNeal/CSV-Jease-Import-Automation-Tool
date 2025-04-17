@@ -33,7 +33,7 @@
   }
   
   h1 {
-    margin-bottom: 80px;
+    margin-bottom: 50px;
     font-size: 4rem;
     color: #ffffff;
     text-shadow: 0 0 1px #0a0b0b;
@@ -560,4 +560,34 @@
   border: none;
   color: #1d2244;
   cursor: pointer;
+}
+
+.view-csv-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #6c551f;
+  color: white;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 0 2px #0a0b0b;
+}
+
+.view-csv-btn:hover {
+  background-color: #fff;
+  color: #1d2244;
+}
+
+.offer-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 40px;
 }
