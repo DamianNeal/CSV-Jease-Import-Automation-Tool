@@ -56,7 +56,7 @@ if (window.location.pathname.endsWith("offer.html")) {
 
     function loadOffers() {
       const offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
-      offerSelector.innerHTML = `<option disabled selected>Select an Offer</option>`;
+      offerSelector.innerHTML = `<option disabled selected>SELECT EXISTING OFFER</option>`;
       offers.forEach(offer => {
         const option = document.createElement("option");
         option.textContent = offer;
@@ -64,22 +64,40 @@ if (window.location.pathname.endsWith("offer.html")) {
       });
 
       offerList.innerHTML = "";
-      offers.forEach(offer => {
+      offers.forEach((offer, index) => {
         const li = document.createElement("li");
-        li.textContent = offer;
+      
+        const offerText = document.createElement("span");
+        offerText.textContent = offer;
+        offerText.classList.add("offer-name");
+      
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.classList.add("csv-btn", "edit");
+        editBtn.onclick = () => {
+          const newName = prompt("Edit offer name:", offer);
+          if (newName && newName.trim() !== "") {
+            offers[index] = newName.trim();
+            localStorage.setItem("offerRepository", JSON.stringify(offers));
+            loadOffers();
+          }
+        };
+      
         const removeBtn = document.createElement("button");
         removeBtn.textContent = "Remove";
         removeBtn.classList.add("csv-btn", "danger");
-        removeBtn.style.marginLeft = "10px";
         removeBtn.onclick = () => {
           const filtered = offers.filter(o => o !== offer);
           localStorage.setItem("offerRepository", JSON.stringify(filtered));
           loadOffers();
         };
+      
+        li.appendChild(offerText);
+        li.appendChild(editBtn);
         li.appendChild(removeBtn);
         offerList.appendChild(li);
       });
-    }
+      
 
     if (manageBtn) {
       manageBtn.addEventListener("click", () => {
