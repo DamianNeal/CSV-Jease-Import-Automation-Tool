@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <img src="images/ExploraLogo.png" alt="Explora Logo" class="logo2">
+  <title>Saved CSVs</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <button id="returnHome" class="return-btn">←</button>
+  <div class="container">
+    <h1 class="csv-title">CSV HISTORY</h1>
+    <div id="csvList" class="saved-list"></div>
+  </div>
+  <div id="csvModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <pre id="csvModalContent"></pre>
+    </div>
+  </div>
+  
+
+  <script src="script.js"></script>
+</body>
+</html>

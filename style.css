@@ -2,6 +2,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Shapiro 35 Feather', sans-serif;
+  }
+
+  @font-face {
+    font-family: 'Shapiro 35 Feather';
+    src: url('fonts/Shapiro35Feather.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
   }
   
   body {
@@ -21,13 +29,14 @@
   .logo {
     height: 300px;
     margin-bottom: 80px;
+    margin-top: 40px;
   }
   
   h1 {
-    margin-bottom: 40px;
+    margin-bottom: 80px;
     font-size: 4rem;
     color: #ffffff;
-    text-shadow: 0 0 8px #0a0b0b;
+    text-shadow: 0 0 1px #0a0b0b;
   }
   
   .button-group {
@@ -62,6 +71,7 @@
     margin: 0 auto;
     border-collapse: collapse;
     background-color: white;
+    
   }
   
   .return-btn {
@@ -86,6 +96,7 @@
   .logo2 {
     height: 150px;
     margin-bottom: 20px;
+    margin-top: 20px;
   }
   
   th, td {
@@ -145,6 +156,8 @@
     border: 1px solid #ccc;
     border-radius: 6px;
     background-color: white;
+    margin-top: 30px;
+    margin-bottom: 30px;
   }
   
   /* Optional: make header sticky */
@@ -183,7 +196,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 14px;
+    padding: 12px;
   }
   
   .language-selector-inline select:hover {
@@ -210,4 +223,341 @@
     background-color: rgba(108, 85, 31, 0.2);
     border-color: #fff;
   }
+ 
+  .csv-title {
+    margin-bottom: 40px;
+    margin-top: 40px;
+    font-size: 4rem;
+    color: #ffffff;
+    text-shadow: 0 0 8px #0a0b0b;
+  }
+
+  .saved-list {
+    max-width: 1000px;
+    width: 90%;
+    margin: 20px auto;
+  }
   
+  .saved-entry {
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+  
+  .saved-entry pre {
+    background: #f4f4f4;
+    padding: 10px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    margin-top: 10px;
+  }
+  
+  .saved-entry .actions {
+    margin-top: 10px;
+  }
+  
+  .saved-entry .csv-btn.danger {
+    background-color: #c0392b;
+  }
+  
+  .saved-entry .csv-btn.danger:hover {
+    background-color: #e74c3c;
+  }
+  
+  #viewSavedCSVs {
+    margin-top: 15px;
+  }
+  
+  .saved-entry {
+    border-bottom: 1px solid #ccc;
+    padding: 12px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .entry-header {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    color: #fff;
+    margin-right: 10px;
+  }
+  
+  .entry-date {
+    font-size: 0.9rem;
+    color: #aaa;
+  }
+  
+  .entry-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .modal-content {
+    background: #fff;
+    padding: 20px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 10px;
+    position: relative;
+  }
+  
+  .close-modal {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  /* Saved CSV entry */
+.saved-entry {
+  background: #2c2f4a;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  color: #fff;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.entry-header {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.entry-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.entry-date {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+.entry-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.csv-btn.danger {
+  background-color: #c0392b;
+}
+
+.csv-btn.danger:hover {
+  background-color: #e74c3c;
+}
+
+/* Modal for viewing CSV */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: 10px;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+}
+
+/* offer repo */
+
+.offer-repo {
+  margin-top: 40px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #2c2f4a;
+  color: white;
+  width: 90%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.repo-label {
+  font-size: 1rem;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.repo-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.repo-actions input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.csv-btn.danger {
+  background-color: #c0392b;
+}
+.csv-btn.danger:hover {
+  background-color: #e74c3c;
+}
+
+#manageOffersBtn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #6c551f;
+  color: white;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 0 2px #0a0b0b;
+}
+
+#manageOffersBtn:hover {
+  background-color: #fff;
+  color: #1d2244;
+}
+
+/* Offer Modal Styling */
+#offerModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(29, 34, 68, 0.85);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.offer-modal-content {
+  background-color: #ffffff;
+  color: #1d2244;
+  padding: 30px 40px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  text-align: left;
+  font-family: "Shapiro 35 Feather", sans-serif;
+  position: relative;
+}
+
+.offer-modal-content h2 {
+  margin-bottom: 20px;
+  font-size: 1.6rem;
+  color: #1d2244;
+}
+
+.offer-modal-content input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.offer-modal-content ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.offer-modal-content li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.offer-modal-content button.csv-btn {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.offer-modal-content .danger {
+  background-color: #aa2e2e;
+  color: white;
+}
+
+.offer-modal-content .danger:hover {
+  background-color: #ff4c4c;
+}
+
+#closeOfferModal {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: #1d2244;
+  cursor: pointer;
+}
