@@ -23,7 +23,7 @@ if (window.location.pathname.endsWith("index.html")) {
 // OFFER GATEWAY PAGE LOGIC (offer.html)
 // ========================
 
-if (window.location.pathname.endsWith("offer.html")) {
+if (window.location.pathname.includes("offer.html")) {
   document.addEventListener("DOMContentLoaded", () => {
     const importBtn = document.getElementById("btnImportFile");
     const templateBtn = document.getElementById("btnUseTemplate");
@@ -35,69 +35,62 @@ if (window.location.pathname.endsWith("offer.html")) {
     const offerList = document.getElementById("offerList");
     const offerSelector = document.getElementById("offerSelector");
     const newOfferName = document.getElementById("newOfferName");
+    const selectedOfferName = document.getElementById("selectedOfferName");
+    const currentOffer = localStorage.getItem("currentOffer") || "Unknown Offer";
+    if (selectedOfferName) {
+      selectedOfferName.textContent = `Selected Offer: ${currentOffer}`;
+      
+}
 
+
+    // === PAGE BUTTONS ===
+    function getSelectedOffer() {
+      const selectedOption = offerSelector.options[offerSelector.selectedIndex];
+      return selectedOption && !selectedOption.disabled ? selectedOption.value : null;
+    }
+    
     if (importBtn) {
       importBtn.addEventListener("click", () => {
+        const offer = getSelectedOffer();
+        if (!offer) {
+          alert("Please select an offer from the dropdown before importing.");
+          return;
+        }
+        localStorage.setItem("currentOffer", offer);
         window.location.href = "offerImport.html";
       });
     }
-
+    
     if (templateBtn) {
       templateBtn.addEventListener("click", () => {
-        alert("Template feature coming soon!");
+        const offer = getSelectedOffer();
+        if (!offer) {
+          alert("Please select an offer from the dropdown before using a template.");
+          return;
+        }
+        localStorage.setItem("currentOffer", offer);
+        alert(`Template feature coming soon for offer: ${offer}`);
       });
     }
+    
 
+    if (offerSelector) {
+      offerSelector.addEventListener("change", () => {
+        const selectedOffer = offerSelector.value;
+        localStorage.setItem("currentOffer", selectedOffer);
+      });
+    }    
+
+    function getSelectedOffer() {
+      const selectedOption = offerSelector.options[offerSelector.selectedIndex];
+      return selectedOption && !selectedOption.disabled ? selectedOption.value : null;
+    }
+  
     if (returnBtn) {
       returnBtn.addEventListener("click", () => {
         window.location.href = "index.html";
       });
     }
-
-    function loadOffers() {
-      const offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
-      offerSelector.innerHTML = `<option disabled selected>SELECT EXISTING OFFER</option>`;
-      offers.forEach(offer => {
-        const option = document.createElement("option");
-        option.textContent = offer;
-        offerSelector.appendChild(option);
-      });
-
-      offerList.innerHTML = "";
-      offers.forEach((offer, index) => {
-        const li = document.createElement("li");
-      
-        const offerText = document.createElement("span");
-        offerText.textContent = offer;
-        offerText.classList.add("offer-name");
-      
-        const editBtn = document.createElement("button");
-        editBtn.textContent = "Edit";
-        editBtn.classList.add("csv-btn", "edit");
-        editBtn.onclick = () => {
-          const newName = prompt("Edit offer name:", offer);
-          if (newName && newName.trim() !== "") {
-            offers[index] = newName.trim();
-            localStorage.setItem("offerRepository", JSON.stringify(offers));
-            loadOffers();
-          }
-        };
-      
-        const removeBtn = document.createElement("button");
-        removeBtn.textContent = "Remove";
-        removeBtn.classList.add("csv-btn", "danger");
-        removeBtn.onclick = () => {
-          const filtered = offers.filter(o => o !== offer);
-          localStorage.setItem("offerRepository", JSON.stringify(filtered));
-          loadOffers();
-        };
-      
-        li.appendChild(offerText);
-        li.appendChild(editBtn);
-        li.appendChild(removeBtn);
-        offerList.appendChild(li);
-      });
-      
 
     if (manageBtn) {
       manageBtn.addEventListener("click", () => {
@@ -125,8 +118,77 @@ if (window.location.pathname.endsWith("offer.html")) {
       });
     }
 
+    // === FUNCTION TO LOAD OFFERS ===
+    function loadOffers() {
+      const offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
+
+    offerSelector.addEventListener("change", () => {
+      const selectedOffer = offerSelector.value;
+      localStorage.setItem("currentOffer", selectedOffer);
+    });
+      
+
+      // Reset dropdown
+      offerSelector.innerHTML = `<option disabled selected>SELECT EXISTING OFFER</option>`;
+      offers.forEach(offer => {
+        const option = document.createElement("option");
+        option.textContent = offer;
+        offerSelector.appendChild(option);
+      });
+
+      // Reset offer list in modal
+      offerList.innerHTML = "";
+      offers.forEach((offer, index) => {
+        const li = document.createElement("li");
+
+        const offerText = document.createElement("span");
+        offerText.textContent = offer;
+        offerText.classList.add("offer-name");
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.classList.add("csv-btn", "edit");
+        editBtn.onclick = () => {
+          const newName = prompt("Edit offer name:", offer);
+          if (newName && newName.trim() !== "") {
+            offers[index] = newName.trim();
+            localStorage.setItem("offerRepository", JSON.stringify(offers));
+            loadOffers();
+          }
+        };
+
+        const removeBtn = document.createElement("button");
+        removeBtn.textContent = "Remove";
+        removeBtn.classList.add("csv-btn", "danger");
+        removeBtn.onclick = () => {
+          const filtered = offers.filter(o => o !== offer);
+          localStorage.setItem("offerRepository", JSON.stringify(filtered));
+          loadOffers();
+        };
+
+        li.appendChild(offerText);
+        li.appendChild(editBtn);
+        li.appendChild(removeBtn);
+        offerList.appendChild(li);
+
+        const buttonGroup = document.createElement("div");
+        buttonGroup.classList.add("button-group-inline"); // ✨ NEW class
+        buttonGroup.appendChild(editBtn);
+        buttonGroup.appendChild(removeBtn);
+
+        li.appendChild(offerText);
+        li.appendChild(buttonGroup);
+
+
+        
+      });
+    }
+
+    // Optionally preload offers on page load
     loadOffers();
   });
+
+
 }
 
 // ========================
@@ -144,6 +206,13 @@ if (window.location.pathname.endsWith("offerImport.html")) {
     const dropZone = document.getElementById("fileDropZone");
     const languageSelect = document.getElementById("languageSelect");
     const viewSavedCSVsBtn = document.getElementById("viewSavedCSVs");
+    const selectedOfferName = document.getElementById("selectedOfferName");
+    const currentOffer = localStorage.getItem("currentOffer") || "No offer selected";
+    if (selectedOfferName) {
+      selectedOfferName.textContent = currentOffer;
+    }
+       
+
 
     let selectedLanguage = "EN";
 
@@ -186,9 +255,13 @@ if (window.location.pathname.endsWith("offerImport.html")) {
 
         const csvObject = {
           content: csvContent,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          offer: currentOffer
         };
-        localStorage.setItem(`csv_${selectedLanguage}`, JSON.stringify(csvObject));
+        
+        const key = `csv_${currentOffer}_${selectedLanguage}`;
+        localStorage.setItem(key, JSON.stringify(csvObject));
+              
 
         const previewWindow = window.open("", "CSV Preview", "width=800,height=600");
         previewWindow.document.write(`
@@ -315,6 +388,26 @@ if (window.location.pathname.includes("savedCSVs.html")) {
   document.addEventListener("DOMContentLoaded", () => {
     const csvList = document.getElementById("csvList");
     const returnBtn = document.getElementById("returnHome");
+    const csvSearch = document.getElementById("csvSearch");
+    const monthFilter = document.getElementById("monthFilter");
+    const applyFilterBtn = document.getElementById("applyFilterBtn");
+
+    let searchTerm = "";
+    let selectedMonth = "";
+
+    if (applyFilterBtn) {
+      applyFilterBtn.addEventListener("click", () => {
+        searchTerm = csvSearch?.value?.toLowerCase() || "";
+        renderGroupedCSVs();
+      });
+    }
+
+    if (monthFilter) {
+      monthFilter.addEventListener("change", () => {
+        selectedMonth = monthFilter?.value || "";
+        renderGroupedCSVs();
+      });
+    }
 
     if (returnBtn) {
       returnBtn.addEventListener("click", () => {
@@ -326,44 +419,107 @@ if (window.location.pathname.includes("savedCSVs.html")) {
       });
     }
 
-    const keys = Object.keys(localStorage).filter(k => k.startsWith("csv_"));
+    function renderGroupedCSVs() {
+      csvList.innerHTML = ""; // clear old
 
-    if (!csvList) return;
+      const keys = Object.keys(localStorage).filter(k => k.startsWith("csv_"));
+      const offerMap = {};
 
-    if (keys.length === 0) {
-      csvList.innerHTML = "<p>No saved CSVs found.</p>";
-    } else {
       keys.forEach(key => {
-        const lang = key.replace("csv_", "");
         const raw = localStorage.getItem(key);
         let parsed;
-
         try {
           parsed = JSON.parse(raw);
         } catch {
-          return; // skip corrupted entries
+          return;
         }
 
-        const date = new Date(parsed.timestamp);
-        const formattedDate = date.toLocaleString();
+        const match = key.match(/^csv_(.+?)_(\w{2})$/);
+        if (!match) return;
 
-        const entry = document.createElement("div");
-        entry.className = "saved-entry";
-        entry.innerHTML = `
-          <div class="entry-header">
-            <span class="entry-name">${lang}.csv</span>
-            <span class="entry-date">${formattedDate}</span>
-          </div>
-          <div class="entry-actions">
-            <button class="csv-btn" onclick="viewCSV('${key}')">View</button>
-            <button class="csv-btn" onclick="downloadCSV('${key}')">Download</button>
-            <button class="csv-btn danger" onclick="deleteCSV('${key}', this)">Delete</button>
-          </div>
-        `;
+        const offer = match[1];
+        const lang = match[2];
+        const timestamp = parsed.timestamp || "Unknown";
+        const fileDate = new Date(timestamp);
+        const fileMonth = fileDate.toISOString().slice(0, 7);
 
-        csvList.appendChild(entry);
+        const matchesText = offer.toLowerCase().includes(searchTerm) || lang.toLowerCase().includes(searchTerm);
+        const matchesMonth = !selectedMonth || fileMonth === selectedMonth;
+
+        if (!matchesText && !matchesMonth) return;
+
+        if (!offerMap[offer]) offerMap[offer] = [];
+        offerMap[offer].push({
+          key,
+          lang,
+          timestamp,
+          content: parsed.content || ""
+        });
+      });
+
+      const sortedOffers = Object.entries(offerMap).sort((a, b) => {
+        const aLatest = Math.max(...a[1].map(x => new Date(x.timestamp).getTime()));
+        const bLatest = Math.max(...b[1].map(x => new Date(x.timestamp).getTime()));
+        return bLatest - aLatest;
+      });
+
+      if (sortedOffers.length === 0) {
+        csvList.innerHTML = "<p>No matching CSVs found.</p>";
+        return;
+      }
+
+      sortedOffers.forEach(([offerName, files]) => {
+        const section = document.createElement("div");
+        section.className = "offer-section collapsed";
+
+        const header = document.createElement("div");
+        header.className = "offer-header";
+        header.innerHTML = `<span class="chevron">&#8250;</span> ${offerName}`;
+        header.onclick = () => {
+          section.classList.toggle("collapsed");
+          const chevron = header.querySelector(".chevron");
+          chevron.classList.toggle("rotated");
+        };
+
+        const innerList = document.createElement("div");
+        innerList.className = "csv-sublist";
+
+        files
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          .forEach(file => {
+            const fileDate = new Date(file.timestamp);
+            const fileMonth = fileDate.toISOString().slice(0, 7);
+            const showFile =
+              (!selectedMonth || fileMonth === selectedMonth) &&
+              (offerName.toLowerCase().includes(searchTerm) || file.lang.toLowerCase().includes(searchTerm));
+
+            if (showFile) {
+              const entry = document.createElement("div");
+              entry.className = "saved-entry";
+              entry.innerHTML = `
+                <div class="entry-header">
+                  <span class="entry-name">${file.lang}.csv</span>
+                  <span class="entry-date">${new Date(file.timestamp).toLocaleString()}</span>
+                </div>
+                <div class="entry-actions">
+                  <button class="csv-btn" onclick="viewCSV('${file.key}')">View</button>
+                  <button class="csv-btn" onclick="downloadCSV('${file.key}')">Download</button>
+                  <button class="csv-btn danger" onclick="deleteCSV('${file.key}', this)">Delete</button>
+                </div>
+              `;
+              innerList.appendChild(entry);
+            }
+          });
+
+        if (innerList.children.length > 0) {
+          section.appendChild(header);
+          section.appendChild(innerList);
+          csvList.appendChild(section);
+        }
       });
     }
+
+    renderGroupedCSVs();
   });
 }
 
@@ -410,6 +566,14 @@ function deleteCSV(key, btn) {
     localStorage.removeItem(key);
     const entry = btn.closest(".saved-entry");
     if (entry) entry.remove();
+
+    const offerSection = btn.closest(".offer-section");
+    if (offerSection) {
+      const remainingEntries = offerSection.querySelectorAll(".saved-entry");
+      if (remainingEntries.length === 0) {
+        offerSection.remove();
+      }
+    }
   }
 }
 
