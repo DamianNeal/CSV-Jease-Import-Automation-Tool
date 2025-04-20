@@ -29,63 +29,105 @@ if (window.location.pathname.includes("offer.html")) {
     const templateBtn = document.getElementById("btnUseTemplate");
     const returnBtn = document.getElementById("returnHome");
     const manageBtn = document.getElementById("manageOffersBtn");
+    const openAddOfferModal = document.getElementById("openAddOfferModal");
+
+if (openAddOfferModal) {
+  openAddOfferModal.addEventListener("click", () => {
+    document.getElementById("addOfferModal").style.display = "flex";
+    goToStep(1);
+  });
+}
+
     const modal = document.getElementById("offerModal");
     const closeModal = document.getElementById("closeOfferModal");
-    const addOfferBtn = document.getElementById("addOfferBtn");
     const offerList = document.getElementById("offerList");
     const offerSelector = document.getElementById("offerSelector");
-    const newOfferName = document.getElementById("newOfferName");
     const selectedOfferName = document.getElementById("selectedOfferName");
-    const currentOffer = localStorage.getItem("currentOffer") || "Unknown Offer";
-    if (selectedOfferName) {
-      selectedOfferName.textContent = `Selected Offer: ${currentOffer}`;
-      
+    const editableCells = document.querySelectorAll("#templateEditorTable td");
+    editableCells.forEach(cell => {
+      cell.addEventListener("click", () => {
+        cell.classList.toggle("editable-cell");
+      });
+    });
+    
+    // Insert placeholder at cursor position in textarea
+function insertPlaceholder(placeholder) {
+  const textarea = document.getElementById("promoDescription");
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const text = textarea.value;
+
+  textarea.value = text.substring(0, start) + placeholder + text.substring(end);
+  textarea.focus();
+  textarea.selectionStart = textarea.selectionEnd = start + placeholder.length;
 }
 
 
-    // === PAGE BUTTONS ===
+    const templateCells = document.querySelectorAll("#templateTable td");
+    templateCells.forEach(cell => {
+      cell.addEventListener("click", () => {
+        cell.classList.toggle("editable-cell");
+      });
+    });
+
+    const promoInput = document.getElementById("promoInput");
+    const addPromoBtn = document.getElementById("addPromoBtn");
+    const promoCodeList = document.getElementById("promoCodeList");
+    let promoCodes = [];
+
+    if (addPromoBtn) {
+      addPromoBtn.addEventListener("click", () => {
+        const code = promoInput.value.trim();
+        if (!code || promoCodes.includes(code)) return;
+        promoCodes.push(code);
+        promoInput.value = "";
+        renderPromoCodes();
+      });
+    }
+
+    function renderPromoCodes() {
+      promoCodeList.innerHTML = "";
+      promoCodes.forEach(code => {
+        const li = document.createElement("li");
+        li.innerHTML = `${code} <button onclick="removePromoCode('${code}')">✕</button>`;
+        promoCodeList.appendChild(li);
+      });
+    }
+
+    window.removePromoCode = (code) => {
+      promoCodes = promoCodes.filter(c => c !== code);
+      renderPromoCodes();
+    };
+
     function getSelectedOffer() {
       const selectedOption = offerSelector.options[offerSelector.selectedIndex];
       return selectedOption && !selectedOption.disabled ? selectedOption.value : null;
     }
-    
+
     if (importBtn) {
       importBtn.addEventListener("click", () => {
         const offer = getSelectedOffer();
         if (!offer) {
-          alert("Please select an offer from the dropdown before importing.");
+          showToast("Please select an offer from the dropdown before importing.");
           return;
         }
         localStorage.setItem("currentOffer", offer);
         window.location.href = "offerImport.html";
       });
     }
-    
+
     if (templateBtn) {
       templateBtn.addEventListener("click", () => {
         const offer = getSelectedOffer();
         if (!offer) {
-          alert("Please select an offer from the dropdown before using a template.");
+          showToast("Please select an offer from the dropdown before using a template.");
           return;
         }
         localStorage.setItem("currentOffer", offer);
-        alert(`Template feature coming soon for offer: ${offer}`);
+        showToast(`Template feature coming soon for offer: ${offer}`);
       });
     }
-    
 
-    if (offerSelector) {
-      offerSelector.addEventListener("change", () => {
-        const selectedOffer = offerSelector.value;
-        localStorage.setItem("currentOffer", selectedOffer);
-      });
-    }    
-
-    function getSelectedOffer() {
-      const selectedOption = offerSelector.options[offerSelector.selectedIndex];
-      return selectedOption && !selectedOption.disabled ? selectedOption.value : null;
-    }
-  
     if (returnBtn) {
       returnBtn.addEventListener("click", () => {
         window.location.href = "index.html";
@@ -109,6 +151,25 @@ if (window.location.pathname.includes("offer.html")) {
       addOfferBtn.addEventListener("click", () => {
         const name = newOfferName.value.trim();
         if (!name) return alert("Please enter an offer name.");
+
+        const templateTable = document.querySelector("#templateTable tbody tr");
+        const cells = templateTable.querySelectorAll("td");
+        const baseTemplate = [];
+        cells.forEach(cell => {
+          baseTemplate.push({
+            text: cell.textContent.trim(),
+            editable: cell.classList.contains("editable-cell")
+          });
+        });
+
+        const offerData = {
+          name,
+          promoCodes,
+          baseTemplate
+        };
+
+        localStorage.setItem(`offerData_${name}`, JSON.stringify(offerData));
+
         let offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
         if (offers.includes(name)) return alert("Offer already exists.");
         offers.push(name);
@@ -118,17 +179,9 @@ if (window.location.pathname.includes("offer.html")) {
       });
     }
 
-    // === FUNCTION TO LOAD OFFERS ===
     function loadOffers() {
       const offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
 
-    offerSelector.addEventListener("change", () => {
-      const selectedOffer = offerSelector.value;
-      localStorage.setItem("currentOffer", selectedOffer);
-    });
-      
-
-      // Reset dropdown
       offerSelector.innerHTML = `<option disabled selected>SELECT EXISTING OFFER</option>`;
       offers.forEach(offer => {
         const option = document.createElement("option");
@@ -136,7 +189,6 @@ if (window.location.pathname.includes("offer.html")) {
         offerSelector.appendChild(option);
       });
 
-      // Reset offer list in modal
       offerList.innerHTML = "";
       offers.forEach((offer, index) => {
         const li = document.createElement("li");
@@ -149,13 +201,22 @@ if (window.location.pathname.includes("offer.html")) {
         editBtn.textContent = "Edit";
         editBtn.classList.add("csv-btn", "edit");
         editBtn.onclick = () => {
-          const newName = prompt("Edit offer name:", offer);
-          if (newName && newName.trim() !== "") {
-            offers[index] = newName.trim();
-            localStorage.setItem("offerRepository", JSON.stringify(offers));
-            loadOffers();
+          // Set current offer name
+          localStorage.setItem("currentOffer", offer);
+        
+          // Show the template modal
+          const templateModal = document.getElementById("templateModal");
+          if (templateModal) {
+            templateModal.style.display = "flex";
+          }
+        
+          // Optionally update selected name display
+          const selectedOfferName = document.getElementById("selectedOfferName");
+          if (selectedOfferName) {
+            selectedOfferName.textContent = offer;
           }
         };
+        
 
         const removeBtn = document.createElement("button");
         removeBtn.textContent = "Remove";
@@ -166,32 +227,22 @@ if (window.location.pathname.includes("offer.html")) {
           loadOffers();
         };
 
-        li.appendChild(offerText);
-        li.appendChild(editBtn);
-        li.appendChild(removeBtn);
-        offerList.appendChild(li);
-
         const buttonGroup = document.createElement("div");
-        buttonGroup.classList.add("button-group-inline"); // ✨ NEW class
+        buttonGroup.classList.add("button-group-inline");
         buttonGroup.appendChild(editBtn);
         buttonGroup.appendChild(removeBtn);
 
         li.appendChild(offerText);
         li.appendChild(buttonGroup);
-
-
-        
+        offerList.appendChild(li);
       });
     }
 
-    // Optionally preload offers on page load
     loadOffers();
   });
-
-
 }
 
-// ========================
+// ======================
 // IMPORT PAGE LOGIC (offerImport.html)
 // ========================
 
@@ -381,6 +432,7 @@ if (window.location.pathname.endsWith("offerImport.html")) {
   });
 }
 
+
 // ========================
 // SAVED CSV PAGE LOGIC (savedCSVs.html)
 // ========================
@@ -474,7 +526,12 @@ if (window.location.pathname.includes("savedCSVs.html")) {
 
         const header = document.createElement("div");
         header.className = "offer-header";
-        header.innerHTML = `<span class="chevron">&#8250;</span> ${offerName}`;
+        header.innerHTML = `
+        <span class="chevron">&#8250;</span>
+        <span class="offer-title">${offerName}</span>
+        <span class="csv-count">${files.length}</span>
+      `;
+      
         header.onclick = () => {
           section.classList.toggle("collapsed");
           const chevron = header.querySelector(".chevron");
@@ -524,6 +581,9 @@ if (window.location.pathname.includes("savedCSVs.html")) {
 }
 
 function viewCSV(key) {
+  // Prevent accidental modal trigger
+  if (!key || typeof key !== "string" || !key.startsWith("csv_")) return;
+
   const raw = localStorage.getItem(key);
   if (!raw) return;
 
@@ -534,13 +594,25 @@ function viewCSV(key) {
     parsed = { content: raw };
   }
 
+  if (!parsed.content) return; // Don't open modal with empty content
+
   const modal = document.getElementById("csvModal");
   const modalContent = document.getElementById("csvModalContent");
-  if (modal && modalContent) {
-    modalContent.textContent = parsed.content || "No content.";
-    modal.style.display = "block";
+  const copyBtn = document.getElementById("copyCSVBtn");
+
+  if (modal && modalContent && copyBtn) {
+    modalContent.textContent = parsed.content;
+    modal.style.display = "flex";
+
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(parsed.content).then(() => {
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => (copyBtn.textContent = "Copy to Clipboard"), 2000);
+      });
+    };
   }
 }
+
 
 function downloadCSV(key) {
   const raw = localStorage.getItem(key);
@@ -581,3 +653,140 @@ function closeModal() {
   const modal = document.getElementById("csvModal");
   if (modal) modal.style.display = "none";
 }
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3000);
+}
+
+// === Multi-step Add Offer Modal ===
+
+let currentStep = 1;
+let addedPromoCodes = [];
+
+function goToStep(stepNumber) {
+  document.querySelectorAll(".add-offer-step").forEach(step => {
+    step.classList.remove("active");
+  });
+
+  const step = document.getElementById(`step${stepNumber}`);
+  if (step) {
+    step.classList.add("active");
+    currentStep = stepNumber;
+
+    if (stepNumber === 4) {
+      generateReview();
+    }
+  }
+}
+
+// 📌 Add this right after goToStep():
+function insertPlaceholder(placeholder) {
+  const textarea = document.getElementById("promoDescription");
+  if (!textarea) return;
+  
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const text = textarea.value;
+
+  textarea.value = text.slice(0, start) + placeholder + text.slice(end);
+  textarea.focus();
+  textarea.setSelectionRange(start + placeholder.length, start + placeholder.length);
+}
+
+function wrapSelectedWithBraces() {
+  const textarea = document.getElementById("promoDescriptionInput");
+  if (!textarea) return;
+
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+
+  if (start === end) {
+    alert("Please highlight a word to mark as editable.");
+    return;
+  }
+
+  const text = textarea.value;
+  const selected = text.substring(start, end);
+
+  // Wrap the selected text with curly braces
+  const updated = text.slice(0, start) + `{${selected}}` + text.slice(end);
+  textarea.value = updated;
+
+  // Re-position cursor
+  const newPos = start + selected.length + 2;
+  textarea.focus();
+  textarea.setSelectionRange(newPos, newPos);
+}
+
+
+
+function addPromoCodeStep() {
+  const input = document.getElementById("promoCodeInputStep");
+  const list = document.getElementById("promoCodeListStep");
+  const code = input.value.trim();
+
+  if (code && !addedPromoCodes.includes(code)) {
+    addedPromoCodes.push(code);
+
+    const li = document.createElement("li");
+    li.textContent = code;
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "✕";
+    removeBtn.onclick = () => {
+      addedPromoCodes = addedPromoCodes.filter(c => c !== code);
+      li.remove();
+    };
+    li.appendChild(removeBtn);
+    list.appendChild(li);
+
+    input.value = "";
+  }
+}
+
+function generateReview() {
+  const name = document.getElementById("offerNameInput").value.trim();
+  const summary = document.getElementById("reviewOfferSummary");
+  const description = document.getElementById("promoDescriptionInput").value.trim();
+
+  summary.innerHTML = `
+    <p><strong>Offer Name:</strong> ${name}</p>
+    <p><strong>Promo Codes:</strong> ${addedPromoCodes.join(", ")}</p>
+    <p><strong>Description:</strong> ${description || "<em>No description provided</em>"}</p>
+  `;
+}
+
+
+function saveFinalOffer() {
+  const name = document.getElementById("offerNameInput").value.trim();
+  const description = document.getElementById("promoDescriptionInput").value.trim();
+  if (!name) return alert("Offer name is required.");
+
+  const data = {
+    name,
+    title: name,
+    promoCodes: addedPromoCodes,
+    description
+  };
+
+  let offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
+  if (!offers.includes(name)) {
+    offers.push(name);
+    localStorage.setItem("offerRepository", JSON.stringify(offers));
+  }
+
+  localStorage.setItem(`offerData_${name}`, JSON.stringify(data));
+
+  document.getElementById("addOfferModal").style.display = "none";
+  addedPromoCodes = [];
+  goToStep(1);
+  document.getElementById("promoCodeListStep").innerHTML = "";
+  document.getElementById("offerNameInput").value = "";
+  document.getElementById("promoDescriptionInput").value = "";
+  alert("Offer saved successfully!");
+}
+
