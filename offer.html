@@ -6,14 +6,6 @@
   <title>CSV & Jease Tool</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=SangBleu+Republic&display=swap" rel="stylesheet">
-  <style>
-    .add-offer-step {
-      display: none;
-    }
-    .add-offer-step.active {
-      display: block;
-    }
-  </style>
 </head>
 <body>
   <button id="returnHome" class="return-btn">←</button>
@@ -37,84 +29,97 @@
     <div id="toast" class="toast hidden"></div>
   </div>
 
-  <!-- Offer Management Modal -->
-  <div id="offerModal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <span class="close-modal" id="closeOfferModal">&times;</span>
-      <h2>MANAGE OFFERS</h2>
-      <div class="add-offer-row">
-        <button id="openAddOfferModal" class="csv-btn">Add Offer</button>
-      </div>
-      <ul id="offerList"></ul>
-    </div>
-  </div>
-
-  <!-- Add Offer Modal (Step-by-Step) -->
-  <div id="addOfferModal" class="modal" style="display: none;">
-    <div class="modal-content large">
-      <span class="close-modal" onclick="document.getElementById('addOfferModal').style.display='none'">&times;</span>
-
-      <!-- Step 1: Offer Name -->
-      <div id="step1" class="add-offer-step active">
-        <h2>Step 1: Offer Name</h2>
-        <input type="text" id="offerNameInput" placeholder="Enter offer name" />
-        <p class="note">The title will match the offer name automatically.</p>
-        <button class="csv-btn" onclick="goToStep(2)">Next</button>
-      </div>
-
-      <!-- Step 2: Promo Codes -->
-      <div id="step2" class="add-offer-step">
-        <h2>Step 2: Add Promo Codes</h2>
-        <div class="inline-group">
-          <input type="text" id="promoCodeInputStep" placeholder="Enter promo code" />
-          <button class="csv-btn" onclick="addPromoCodeStep()">Add</button>
-        </div>
-        <ul id="promoCodeListStep" class="promo-list"></ul>
-        <div class="button-group">
-          <button class="csv-btn" onclick="goToStep(1)">Back</button>
-          <button class="csv-btn" onclick="goToStep(3)">Next</button>
-        </div>
-      </div>
-
-<!-- Step 3: Editable Promo Sentence -->
-<div id="step3" class="add-offer-step">
-  <h2>Step 3: Promo Description</h2>
-  <p class="note">Select a word in the sentence below and click "Mark as Editable" to wrap it with <code>{ }</code>.</p>
-
-  <textarea id="promoDescriptionInput" rows="4" placeholder="e.g., Book before May and save 200€"></textarea>
-
-  <div class="button-group">
-    <button class="csv-btn" onclick="wrapSelectedWithBraces()">Mark as Editable</button>
-  </div>
-
-  <div class="button-group">
-    <button class="csv-btn" onclick="goToStep(2)">Back</button>
-    <button class="csv-btn" onclick="goToStep(4)">Next</button>
+<!-- Manage Offers Modal -->
+<div id="offerModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span id="closeOfferModal" class="close-modal">&times;</span>
+    <h2>MANAGE OFFERS</h2>
+    <div class="add-offer-row">
+      <button id="openAddOfferModal" class="csv-btn primary">+ New Offer</button>
+    </div>    
+    <ul id="offerList"></ul>
   </div>
 </div>
 
-
-      <!-- Step 4: Final Review -->
-      <div id="step4" class="add-offer-step">
-        <h2>Step 4: Review & Save</h2>
-        <div id="reviewOfferSummary"></div>
-        <div class="button-group">
-          <button class="csv-btn danger" onclick="document.getElementById('addOfferModal').style.display='none'">Cancel</button>
-          <button class="csv-btn" onclick="saveFinalOffer()">Save Offer ✅</button>
-        </div>
+<!-- Add Offer Modal -->
+<div id="addOfferModal" class="modal" style="display: none;">
+  <div class="modal-content large">
+    <span class="close-modal" onclick="document.getElementById('addOfferModal').style.display='none'">&times;</span>
+    <div class="step-indicator">
+      <div class="step active">1</div>
+      <div class="step">2</div>
+      <div class="step">3</div>
+      <div class="step">4</div>
+    </div>
+    <div id="step1" class="add-offer-step active">
+      <h2>Step 1: Offer Name</h2>
+      <label for="offerNameInput" class="form-label">Offer Name</label>
+      <input type="text" id="offerNameInput" class="form-control" placeholder="Enter offer name" />
+      <p class="note">The title will match the offer name automatically.</p>
+      <div class="button-group">
+        <button class="csv-btn primary" onclick="goToStep(2)">Next</button>
+      </div>
+    </div>
+    <div id="step2" class="add-offer-step">
+      <h2>Step 2: Add & Select Promo Code</h2>
+      <p class="note" style="color: #c0392b; font-weight: bold;">
+        Add one or more promo codes, then click to select the one you want to configure.
+      </p>
+      <div class="inline-group">
+        <input type="text" id="promoCodeInputStep" class="form-control" placeholder="Enter promo code" />
+        <button class="csv-btn primary" onclick="addPromoCodeStep()">Add</button>
+      </div>
+      <ul id="promoCodeListStep" class="promo-list selectable-list"></ul>
+      <div class="button-group">
+        <button class="csv-btn secondary" onclick="goToStep(1)">Back</button>
+        <button class="csv-btn primary" id="promoCodeNextBtn" disabled onclick="handlePromoCodeProceed()">Next</button>
+      </div>
+    </div>
+    <div id="step3" class="add-offer-step">
+      <h2>Step 3: Promo Description</h2>
+      <p class="note">Highlight any word or phrase in the text below and click "Mark as Changeable" to wrap it with <code>{ }</code>.</p>
+      <textarea id="promoDescriptionInput" class="form-control" rows="4" placeholder="e.g., Book before May and save 200€"></textarea>
+      <div class="button-group">
+        <button class="csv-btn primary" onclick="wrapSelectedWithBraces()">Mark as Changeable</button>
+      </div>
+      <div class="button-group">
+        <button class="csv-btn danger" onclick="document.getElementById('addOfferModal').style.display='none'">Cancel</button>
+        <button id="saveAndNextBtn" class="csv-btn primary" onclick="saveFinalOffer()">Save & Next Promo</button>
+        <button id="saveFinalButton" class="csv-btn primary" onclick="finalizeOffer()" style="display: none;">Save Full Offer ✅</button>
+      </div>
+    </div>
+    <div id="step4" class="add-offer-step">
+      <h2>Step 4: Review & Save</h2>
+      <div id="reviewOfferSummary" class="review-box"></div>
+      <div class="button-group">
+        <button class="csv-btn danger" onclick="document.getElementById('addOfferModal').style.display='none'">Cancel</button>
+        <button class="csv-btn primary" onclick="saveFinalOffer()">Save Offer ✅</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Template Modal (for future use) -->
-  <div id="templateModal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <span class="close" onclick="document.getElementById('templateModal').style.display='none'">×</span>
-      <h2>Edit Template</h2>
-      <p>This is for editing existing offers (coming later).</p>
+<!-- Template Modal -->
+<div id="templateModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" onclick="document.getElementById('templateModal').style.display='none'">×</span>
+    <h2>Edit Template</h2>
+    <p>This is for editing existing offers (coming later).</p>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="confirmDeleteModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span id="closeConfirmModal" class="close-modal">&times;</span>
+    <p id="deleteOfferText"></p>
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+      <button id="cancelDeleteBtn" class="csv-btn secondary">Cancel</button>
+      <button id="confirmDeleteBtn" class="csv-btn danger">Delete</button>
     </div>
   </div>
+</div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

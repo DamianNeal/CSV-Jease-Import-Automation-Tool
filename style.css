@@ -1177,3 +1177,163 @@
 .csv-btn.secondary:hover {
   background-color: #555;
 }
+
+.step-indicator {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+.step {
+  background: #ccc;
+  color: #1d2244;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1rem;
+}
+.step.active {
+  background-color: #6c551f;
+  color: #fff;
+}
+
+.promo-button {
+  background: #f0f0f0;
+  padding: 8px 12px;
+  margin: 4px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.promo-button.selected {
+  background: #2980b9;
+  color: white;
+  font-weight: bold;
+}
+
+.promo-button button {
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  color: #900;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.selectable-list li {
+  display: inline-block;
+  margin: 6px;
+  padding: 10px 14px;
+  background: #1d2244;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: 0.2s ease;
+}
+
+.selectable-list li:hover {
+  background: #ddd;
+}
+
+.selectable-list li.selected {
+  border-color: #2980b9;
+  background: #3498db;
+  color: white;
+  font-weight: bold;
+}
+
+.promo-code-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  font-weight: 600;
+  color: #333;
+  max-width: 350px;
+}
+
+/* Adjust promo code text if needed */
+.promo-code-item span {
+  flex-grow: 1;
+}
+
+/* Style the ✕ button */
+.promo-code-item button {
+  background-color: #f70505;
+  border: 1px solid #000000;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-left: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.promo-code-item button:hover {
+  background-color: #ddd;
+}
+
+.promo-code-item.selected {
+  background-color: #d1fae5;
+  border-color: #34d399;
+}
+
+#confirmDeleteModal {
+  z-index: 10001; /* higher than others */
+}
+
+/* Parent list style (optional for alignment) */
+#promoCodeList li {
+  list-style: none;
+}
+
+/* Promo "pill" style */
+.promo-code-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #3498db;
+  color: white;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  max-width: 300px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-weight: 600;
+}
+
+/* Text inside the pill */
+.promo-code-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+
+/* Close button */
+.promo-remove-btn {
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.promo-remove-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
