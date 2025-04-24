@@ -9,15 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=SangBleu+Republic&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Navigation buttons in fixed positions -->
   <button id="returnHome" class="return-btn">←</button>
   <button id="viewSavedCSVs" class="view-csv-btn">VIEW CSV HISTORY</button>
-
 
   <div class="container">
     <img src="images/ExploraLogo.png" alt="Explora Logo" class="logo2">
     <h1 class="csv-title">CSV OFFER</h1>
     <p id="selectedOfferName" class="offer-subtitle"></p>
-
 
     <!-- Import, clear, and language controls -->
     <div class="import-controls">
@@ -65,15 +64,17 @@
       </table>
     </div>
 
-<!-- Drag & drop OR CSV export -->
-  <div id="fileDropZone" class="drop-zone">
-    <p>📂 Drag & drop Excel file here</p>
-    <p style="font-size: 12px; color: #bbb;">(or use the Import Excel button)</p>
-  </div>
+    <!-- Drag & drop OR CSV export -->
+    <div id="fileDropZone" class="drop-zone">
+      <p>📂 Drag & drop Excel file here</p>
+      <p style="font-size: 12px; color: #bbb;">(or use the Import Excel button)</p>
+    </div>
 
-  <button id="createCSV" class="csv-btn" style="display: none;">CREATE CSV</button>
+    <!-- Create CSV button - now more prominently placed and initially visible if data exists -->
+    <button id="createCSV" class="csv-btn create-csv-btn">CREATE CSV</button>
 
-
+    <!-- Toast notifications -->
+    <div id="toast" class="toast hidden"></div>
   </div>
 
   <script src="script.js"></script>

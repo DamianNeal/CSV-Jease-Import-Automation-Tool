@@ -44,7 +44,7 @@
 <!-- Add Offer Modal -->
 <div id="addOfferModal" class="modal" style="display: none;">
   <div class="modal-content large">
-    <span class="close-modal" onclick="document.getElementById('addOfferModal').style.display='none'">&times;</span>
+    <span id="closeAddOfferModal" class="close-modal">&times;</span>
     <div class="step-indicator">
       <div class="step active">1</div>
       <div class="step">2</div>
@@ -53,11 +53,11 @@
     </div>
     <div id="step1" class="add-offer-step active">
       <h2>Step 1: Offer Name</h2>
-      <label for="offerNameInput" class="form-label">Offer Name</label>
-      <input type="text" id="offerNameInput" class="form-control" placeholder="Enter offer name" />
+      <label for="offerNameInput" class="form-label"></label>
+      <input type="text" id="offerNameInput" class="form-control" placeholder="Enter offer name" required />
       <p class="note">The title will match the offer name automatically.</p>
       <div class="button-group">
-        <button class="csv-btn primary" onclick="goToStep(2)">Next</button>
+        <button id="step1NextBtn" class="csv-btn primary">Next</button>
       </div>
     </div>
     <div id="step2" class="add-offer-step">
@@ -67,12 +67,12 @@
       </p>
       <div class="inline-group">
         <input type="text" id="promoCodeInputStep" class="form-control" placeholder="Enter promo code" />
-        <button class="csv-btn primary" onclick="addPromoCodeStep()">Add</button>
+        <button id="addPromoBtn" class="csv-btn primary">Add</button>
       </div>
       <ul id="promoCodeListStep" class="promo-list selectable-list"></ul>
       <div class="button-group">
-        <button class="csv-btn secondary" onclick="goToStep(1)">Back</button>
-        <button class="csv-btn primary" id="promoCodeNextBtn" disabled onclick="handlePromoCodeProceed()">Next</button>
+        <button id="step2BackBtn" class="csv-btn secondary">Back</button>
+        <button id="promoCodeNextBtn" class="csv-btn primary" disabled>Next</button>
       </div>
     </div>
     <div id="step3" class="add-offer-step">
@@ -80,20 +80,20 @@
       <p class="note">Highlight any word or phrase in the text below and click "Mark as Changeable" to wrap it with <code>{ }</code>.</p>
       <textarea id="promoDescriptionInput" class="form-control" rows="4" placeholder="e.g., Book before May and save 200€"></textarea>
       <div class="button-group">
-        <button class="csv-btn primary" onclick="wrapSelectedWithBraces()">Mark as Changeable</button>
+        <button id="markChangeableBtn" class="csv-btn primary">Mark as Changeable</button>
       </div>
       <div class="button-group">
-        <button class="csv-btn danger" onclick="document.getElementById('addOfferModal').style.display='none'">Cancel</button>
-        <button id="saveAndNextBtn" class="csv-btn primary" onclick="saveFinalOffer()">Save & Next Promo</button>
-        <button id="saveFinalButton" class="csv-btn primary" onclick="finalizeOffer()" style="display: none;">Save Full Offer ✅</button>
+        <button id="cancelOfferBtn" class="csv-btn danger">Cancel</button>
+        <button id="saveAndNextBtn" class="csv-btn primary">Save & Next Promo</button>
+        <button id="saveFinalButton" class="csv-btn primary" style="display: none;">Save Full Offer ✅</button>
       </div>
     </div>
     <div id="step4" class="add-offer-step">
       <h2>Step 4: Review & Save</h2>
       <div id="reviewOfferSummary" class="review-box"></div>
       <div class="button-group">
-        <button class="csv-btn danger" onclick="document.getElementById('addOfferModal').style.display='none'">Cancel</button>
-        <button class="csv-btn primary" onclick="saveFinalOffer()">Save Offer ✅</button>
+        <button id="cancelReviewBtn" class="csv-btn danger">Cancel</button>
+        <button id="finalSaveBtn" class="csv-btn primary">Save Offer ✅</button>
       </div>
     </div>
   </div>
@@ -102,20 +102,101 @@
 <!-- Template Modal -->
 <div id="templateModal" class="modal" style="display: none;">
   <div class="modal-content">
-    <span class="close" onclick="document.getElementById('templateModal').style.display='none'">×</span>
+    <span id="closeTemplateModal" class="close-modal">&times;</span>
     <h2>Edit Template</h2>
     <p>This is for editing existing offers (coming later).</p>
   </div>
 </div>
 
 <!-- Confirm Delete Modal -->
-<div id="confirmDeleteModal" class="modal" style="display:none;">
+<div id="confirmDeleteModal" class="modal confirmation-modal" style="display:none;">
   <div class="modal-content">
     <span id="closeConfirmModal" class="close-modal">&times;</span>
-    <p id="deleteOfferText"></p>
-    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-      <button id="cancelDeleteBtn" class="csv-btn secondary">Cancel</button>
-      <button id="confirmDeleteBtn" class="csv-btn danger">Delete</button>
+    <p id="deleteOfferText" class="confirm-message"></p>
+    <div class="confirm-dialog-buttons">
+      <button id="cancelDeleteBtn" class="cancel-btn">Cancel</button>
+      <button id="confirmDeleteBtn" class="delete-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Offer Modal -->
+<div id="editOfferModal" class="modal" style="display: none;">
+  <div class="modal-content large">
+    <span id="closeEditOfferModal" class="close-modal">&times;</span>
+    <h2>Edit Offer</h2>
+    
+    <div class="edit-form">
+      <div class="form-group">
+        <label for="editOfferName" class="form-label">Offer Name</label>
+        <input type="text" id="editOfferName" class="form-control" placeholder="Enter offer name" />
+      </div>
+      
+      <div class="form-group">
+        <label for="editOfferTitle" class="form-label">Offer Title</label>
+        <input type="text" id="editOfferTitle" class="form-control" placeholder="Enter offer title" />
+      </div>
+      
+      <h3>Promo Codes</h3>
+      <ul id="editPromoCodeList" class="promo-list edit-promo-list"></ul>
+      
+      <div class="button-group">
+        <button id="saveEditBtn" class="csv-btn primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Offer Modal -->
+<div id="editOfferModal" class="modal" style="display: none;">
+  <div class="modal-content large">
+    <span id="closeEditOfferModal" class="close-modal">&times;</span>
+    <h2>Edit Offer</h2>
+    
+    <div class="edit-form">
+      <div class="form-group">
+        <label for="editOfferName" class="form-label">Offer Name</label>
+        <input type="text" id="editOfferName" class="form-control" placeholder="Enter offer name" />
+      </div>
+      
+      <div class="form-group">
+        <label for="editOfferTitle" class="form-label">Offer Title</label>
+        <input type="text" id="editOfferTitle" class="form-control" placeholder="Enter offer title" />
+      </div>
+      
+      <h3>Promo Codes</h3>
+      <ul id="editPromoCodeList" class="promo-list edit-promo-list"></ul>
+      
+      <div class="button-group">
+        <button id="saveEditBtn" class="csv-btn primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Description Modal -->
+<div id="editDescriptionModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span id="closeDescriptionModal" class="close-modal">&times;</span>
+    <h2>Edit Promo Description</h2>
+    
+    <div class="edit-form">
+      <input type="hidden" id="editPromoCode" />
+      
+      <div class="form-group">
+        <label for="editPromoDescription" class="form-label">Description</label>
+        <p class="note">Highlight text and use the button below to mark editable sections with { }.</p>
+        <textarea id="editPromoDescription" class="form-control" rows="6"></textarea>
+      </div>
+      
+      <div class="button-group">
+        <button id="markEditableBtn" class="csv-btn" onclick="wrapSelectedWithBraces('editPromoDescription')">Mark as Editable</button>
+      </div>
+      
+      <div class="button-group">
+        <button id="cancelDescriptionBtn" class="csv-btn danger">Cancel</button>
+        <button id="saveDescriptionBtn" class="csv-btn primary">Save Description</button>
+      </div>
     </div>
   </div>
 </div>

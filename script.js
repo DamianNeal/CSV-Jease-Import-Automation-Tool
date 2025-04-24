@@ -2,7 +2,7 @@
 // HOME PAGE LOGIC (index.html)
 // ========================
 
-if (window.location.pathname.endsWith("index.html")) {
+if (window.location.pathname.endsWith("index.html") || window.location.pathname === "/") {
   const btnOffer = document.getElementById("btnOffer");
   const btnJourney = document.getElementById("btnJourney");
 
@@ -22,6 +22,10 @@ if (window.location.pathname.endsWith("index.html")) {
 // OFFER GATEWAY PAGE LOGIC (offer.html)
 // ========================
 
+// ========================
+// OFFER GATEWAY PAGE LOGIC (offer.html)
+// ========================
+
 if (window.location.pathname.includes("offer.html")) {
   document.addEventListener("DOMContentLoaded", () => {
     const importBtn = document.getElementById("btnImportFile");
@@ -29,19 +33,345 @@ if (window.location.pathname.includes("offer.html")) {
     const returnBtn = document.getElementById("returnHome");
     const manageBtn = document.getElementById("manageOffersBtn");
     const openAddOfferModal = document.getElementById("openAddOfferModal");
-    const addOfferBtn = document.getElementById("addOfferBtn");
-    const newOfferName = document.getElementById("newOfferName");
     const modal = document.getElementById("offerModal");
     const closeModal = document.getElementById("closeOfferModal");
     const offerList = document.getElementById("offerList");
     const offerSelector = document.getElementById("offerSelector");
     const selectedOfferName = document.getElementById("selectedOfferName");
-    const promoInput = document.getElementById("promoInput");
-    const addPromoBtn = document.getElementById("addPromoBtn");
-    const promoCodeList = document.getElementById("promoCodeList");
-    const step1NextBtn = document.querySelector("#step1 .csv-btn.primary");
     let promoCodes = [];
     let addedPromoCodes = [];
+
+    // NEW CODE: Function to handle edit button clicks in the offer list
+    function handleEditOffer(offerName) {
+      // Load the offer data
+      const offerData = JSON.parse(localStorage.getItem(`offerData_${offerName}`)) || {
+        name: offerName,
+        title: offerName,
+        promoCodes: [],
+        descriptions: {}
+      };
+      
+      // Populate the edit modal
+      document.getElementById("editOfferName").value = offerData.name;
+      document.getElementById("editOfferTitle").value = offerData.title || offerData.name;
+      
+      // Clear previous promo codes
+      const promoList = document.getElementById("editPromoCodeList");
+      promoList.innerHTML = "";
+      
+      // Add section header
+      const sectionHeader = document.createElement("h3");
+      sectionHeader.textContent = "Promo Codes";
+      promoList.appendChild(sectionHeader);
+      
+      // Add promo code input field and button
+      const addPromoDiv = document.createElement("div");
+      addPromoDiv.className = "promo-input-container";
+      addPromoDiv.innerHTML = `
+        <div class="promo-input-group">
+          <input type="text" id="newPromoCodeInput" class="form-control" placeholder="Enter new promo code">
+          <button id="addNewPromoBtn" class="add-btn">Add</button>
+        </div>
+      `;
+      promoList.appendChild(addPromoDiv);
+      
+      // Add existing promo codes to the list
+      if (offerData.promoCodes && offerData.promoCodes.length > 0) {
+        offerData.promoCodes.forEach(code => {
+          const promoCard = document.createElement("div");
+          promoCard.className = "promo-card";
+          
+          const description = offerData.descriptions[code] || "";
+          
+          promoCard.innerHTML = `
+            <div class="promo-code-header">
+              <span class="promo-label">${code}</span>
+              <div class="promo-buttons">
+                <button class="edit-description-btn">Edit Description</button>
+                <button class="remove-btn">Remove</button>
+              </div>
+            </div>
+            <div class="promo-description">${description.substring(0, 50)}${description.length > 50 ? '...' : ''}</div>
+          `;
+          
+          // Add a click event to edit description
+          const editBtn = promoCard.querySelector(".edit-description-btn");
+          editBtn.addEventListener("click", () => {
+            document.getElementById("editPromoCode").value = code;
+            document.getElementById("editPromoDescription").value = description;
+            document.getElementById("editDescriptionModal").style.display = "flex";
+          });
+          
+          // Add a click event to remove promo code
+          const removeBtn = promoCard.querySelector(".remove-btn");
+          removeBtn.addEventListener("click", () => {
+            if (confirm(`Remove promo code ${code}?`)) {
+              // Remove from the UI
+              promoCard.remove();
+              
+              // Remove from the data
+              const index = offerData.promoCodes.indexOf(code);
+              if (index !== -1) {
+                offerData.promoCodes.splice(index, 1);
+                delete offerData.descriptions[code];
+                
+                // Save the updated data
+                localStorage.setItem(`offerData_${offerName}`, JSON.stringify(offerData));
+                showToast(`Promo code ${code} removed`);
+              }
+            }
+          });
+          
+          promoList.appendChild(promoCard);
+        });
+      }
+      
+      // Add event listener for the add new promo button
+      setTimeout(() => {
+        const addNewPromoBtn = document.getElementById("addNewPromoBtn");
+        const newPromoCodeInput = document.getElementById("newPromoCodeInput");
+        
+        if (addNewPromoBtn && newPromoCodeInput) {
+          addNewPromoBtn.addEventListener("click", () => {
+            const newCode = newPromoCodeInput.value.trim();
+            
+            if (!newCode) {
+              alert("Please enter a promo code");
+              return;
+            }
+            
+            if (offerData.promoCodes.includes(newCode)) {
+              alert("This promo code already exists");
+              return;
+            }
+            
+            // Add to data
+            offerData.promoCodes.push(newCode);
+            offerData.descriptions[newCode] = "";
+            
+            // Save the updated data
+            localStorage.setItem(`offerData_${offerName}`, JSON.stringify(offerData));
+            
+            // Clear input
+            newPromoCodeInput.value = "";
+            
+            // Refresh the promo list
+            handleEditOffer(offerName);
+            
+            // Show success message
+            showToast(`Promo code ${newCode} added`);
+          });
+        }
+      }, 100);
+      
+      // If no promo codes, show message
+      if (!offerData.promoCodes || offerData.promoCodes.length === 0) {
+        const emptyMessage = document.createElement("div");
+        emptyMessage.className = "empty-message";
+        emptyMessage.textContent = "No promo codes yet. Add one above.";
+        promoList.appendChild(emptyMessage);
+      }
+      
+      // Display the edit modal
+      document.getElementById("editOfferModal").style.display = "flex";
+      localStorage.setItem("currentEditingOffer", offerName);
+    }
+    
+    // NEW CODE: Save edited offer
+    const saveEditBtn = document.getElementById("saveEditBtn");
+    if (saveEditBtn) {
+      saveEditBtn.addEventListener("click", () => {
+        const originalName = localStorage.getItem("currentEditingOffer");
+        const newName = document.getElementById("editOfferName").value.trim();
+        const newTitle = document.getElementById("editOfferTitle").value.trim();
+        
+        if (!newName) {
+          alert("Offer name cannot be empty");
+          return;
+        }
+        
+        // Load existing data
+        const offerData = JSON.parse(localStorage.getItem(`offerData_${originalName}`)) || {
+          name: originalName,
+          title: originalName,
+          promoCodes: [],
+          descriptions: {}
+        };
+        
+        // Update with new values
+        offerData.name = newName;
+        offerData.title = newTitle;
+        
+        // If the name changed, update localStorage
+        if (originalName !== newName) {
+          // Save with new name
+          localStorage.setItem(`offerData_${newName}`, JSON.stringify(offerData));
+          
+          // Update offer repository
+          let offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
+          const index = offers.indexOf(originalName);
+          if (index !== -1) {
+            offers[index] = newName;
+            localStorage.setItem("offerRepository", JSON.stringify(offers));
+          }
+          
+          // Remove old data
+          localStorage.removeItem(`offerData_${originalName}`);
+        } else {
+          // Just save updates
+          localStorage.setItem(`offerData_${newName}`, JSON.stringify(offerData));
+        }
+        
+        // Close modal and refresh list
+        document.getElementById("editOfferModal").style.display = "none";
+        loadOffers();
+        showToast("Offer updated successfully!");
+      });
+    }
+    
+    // NEW CODE: Save edited description
+    const saveDescriptionBtn = document.getElementById("saveDescriptionBtn");
+    if (saveDescriptionBtn) {
+      saveDescriptionBtn.addEventListener("click", () => {
+        const offerName = localStorage.getItem("currentEditingOffer");
+        const promoCode = document.getElementById("editPromoCode").value;
+        const description = document.getElementById("editPromoDescription").value;
+        
+        // Load offer data
+        const offerData = JSON.parse(localStorage.getItem(`offerData_${offerName}`));
+        if (offerData && promoCode) {
+          // Update description
+          offerData.descriptions[promoCode] = description;
+          localStorage.setItem(`offerData_${offerName}`, JSON.stringify(offerData));
+          
+          // Close modal
+          document.getElementById("editDescriptionModal").style.display = "none";
+          
+          // Refresh promo code list to show updated description
+          handleEditOffer(offerName);
+          
+          showToast("Description updated!");
+        }
+      });
+    }
+    
+    // NEW CODE: Close buttons for edit modals
+    const closeEditOfferBtn = document.getElementById("closeEditOfferModal");
+    if (closeEditOfferBtn) {
+      closeEditOfferBtn.addEventListener("click", () => {
+        document.getElementById("editOfferModal").style.display = "none";
+      });
+    }
+    
+    const closeDescriptionModal = document.getElementById("closeDescriptionModal");
+    if (closeDescriptionModal) {
+      closeDescriptionModal.addEventListener("click", () => {
+        document.getElementById("editDescriptionModal").style.display = "none";
+      });
+    }
+
+    // Close modal event handlers
+    const closeAddOfferModal = document.getElementById("closeAddOfferModal");
+    if (closeAddOfferModal) {
+      closeAddOfferModal.addEventListener("click", () => {
+        document.getElementById("addOfferModal").style.display = "none";
+      });
+    }
+
+    const closeTemplateModal = document.getElementById("closeTemplateModal");
+    if (closeTemplateModal) {
+      closeTemplateModal.addEventListener("click", () => {
+        document.getElementById("templateModal").style.display = "none";
+      });
+    }
+
+    // Step 1 event handlers
+    const step1NextBtn = document.getElementById("step1NextBtn");
+    if (step1NextBtn) {
+      step1NextBtn.addEventListener("click", () => {
+        const name = document.getElementById("offerNameInput").value.trim();
+        if (!name) {
+          alert("Please enter a name for the offer.");
+          return;
+        }
+        
+        let offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
+        if (offers.includes(name)) {
+          alert("Offer already exists.");
+          return;
+        }
+        
+        // Store the current name for later — don't save the offer yet
+        localStorage.setItem("currentOffer", name);
+        goToStep(2);
+      });
+    }
+
+    // Step 2 event handlers
+    const step2BackBtn = document.getElementById("step2BackBtn");
+    if (step2BackBtn) {
+      step2BackBtn.addEventListener("click", () => {
+        goToStep(1);
+      });
+    }
+
+    const addPromoBtn = document.getElementById("addPromoBtn");
+    if (addPromoBtn) {
+      addPromoBtn.addEventListener("click", () => {
+        addPromoCodeStep();
+      });
+    }
+
+    const promoCodeNextBtn = document.getElementById("promoCodeNextBtn");
+    if (promoCodeNextBtn) {
+      promoCodeNextBtn.addEventListener("click", () => {
+        handlePromoCodeProceed();
+      });
+    }
+
+    // Step 3 event handlers
+    const markChangeableBtn = document.getElementById("markChangeableBtn");
+    if (markChangeableBtn) {
+      markChangeableBtn.addEventListener("click", () => {
+        wrapSelectedWithBraces();
+      });
+    }
+
+    const cancelOfferBtn = document.getElementById("cancelOfferBtn");
+    if (cancelOfferBtn) {
+      cancelOfferBtn.addEventListener("click", () => {
+        document.getElementById("addOfferModal").style.display = "none";
+      });
+    }
+
+    const saveAndNextBtn = document.getElementById("saveAndNextBtn");
+    if (saveAndNextBtn) {
+      saveAndNextBtn.addEventListener("click", () => {
+        saveFinalOffer();
+      });
+    }
+
+    const saveFinalButton = document.getElementById("saveFinalButton");
+    if (saveFinalButton) {
+      saveFinalButton.addEventListener("click", () => {
+        finalizeOffer();
+      });
+    }
+
+    // Step 4 event handlers
+    const cancelReviewBtn = document.getElementById("cancelReviewBtn");
+    if (cancelReviewBtn) {
+      cancelReviewBtn.addEventListener("click", () => {
+        document.getElementById("addOfferModal").style.display = "none";
+      });
+    }
+
+    const finalSaveBtn = document.getElementById("finalSaveBtn");
+    if (finalSaveBtn) {
+      finalSaveBtn.addEventListener("click", () => {
+        saveFinalOffer();
+      });
+    }
 
     if (openAddOfferModal) {
       openAddOfferModal.addEventListener("click", () => {
@@ -57,71 +387,8 @@ if (window.location.pathname.includes("offer.html")) {
       });
     }
 
-    if (step1NextBtn) {
-      step1NextBtn.addEventListener("click", () => {
-        const name = document.getElementById("offerNameInput").value.trim();
-        if (!name) return alert("Please enter a name for the offer.");
-
-        let offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
-        if (offers.includes(name)) {
-          alert("Offer already exists.");
-          return;
-        }
-
-        const offerData = {
-          name,
-          title: name,
-          promoCodes: [],
-          descriptions: {}
-        };
-
-        localStorage.setItem(`offerData_${name}`, JSON.stringify(offerData));
-        offers.push(name);
-        localStorage.setItem("offerRepository", JSON.stringify(offers));
-        localStorage.setItem("currentOffer", name);
-
-        loadOffers();
-        goToStep(2);
-      });
-    }
-
-    if (addPromoBtn) {
-      addPromoBtn.addEventListener("click", () => {
-        const code = promoInput.value.trim();
-        if (!code || promoCodes.includes(code)) return;
-        promoCodes.push(code);
-        promoInput.value = "";
-        renderPromoCodes();
-      });
-    }
-
-    function renderPromoCodes() {
-      promoCodeList.innerHTML = "";
-      promoCodes.forEach(code => {
-        const li = document.createElement("li");
-        li.className = "promo-code-pill";
-    
-        const text = document.createElement("span");
-        text.textContent = code;
-        text.className = "promo-code-text";
-    
-        const btn = document.createElement("button");
-        btn.textContent = "✕";
-        btn.className = "promo-remove-btn";
-        btn.onclick = () => removePromoCode(code);
-    
-        li.appendChild(text);
-        li.appendChild(btn);
-        promoCodeList.appendChild(li);
-      });
-    }
-    
-    
-
-    window.removePromoCode = (code) => {
-      promoCodes = promoCodes.filter(c => c !== code);
-      renderPromoCodes();
-    };
+    // Load offers when the page loads
+    loadOffers();
 
     function getSelectedOffer() {
       const selectedOption = offerSelector.options[offerSelector.selectedIndex];
@@ -178,43 +445,47 @@ if (window.location.pathname.includes("offer.html")) {
     function loadOffers() {
       const offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
 
+      // Clear existing options except the default one
       offerSelector.innerHTML = `<option disabled selected>SELECT EXISTING OFFER</option>`;
-      offerList.innerHTML = "";
+      
+      // Clear the offer list
+      if (offerList) {
+        offerList.innerHTML = "";
+      }
 
       offers.forEach((offer) => {
         const option = document.createElement("option");
         option.textContent = offer;
+        option.value = offer;
         offerSelector.appendChild(option);
 
-        const li = document.createElement("li");
-        const offerText = document.createElement("span");
-        offerText.textContent = offer;
-        offerText.classList.add("offer-name");
+        if (offerList) {
+          const li = document.createElement("li");
+          const offerText = document.createElement("span");
+          offerText.textContent = offer;
+          offerText.classList.add("offer-name");
 
-        const editBtn = document.createElement("button");
-        editBtn.textContent = "Edit";
-        editBtn.classList.add("csv-btn", "edit");
-        editBtn.onclick = () => {
-          localStorage.setItem("currentOffer", offer);
-          const templateModal = document.getElementById("templateModal");
-          if (templateModal) templateModal.style.display = "flex";
-          const selectedOfferName = document.getElementById("selectedOfferName");
-          if (selectedOfferName) selectedOfferName.textContent = offer;
-        };
+          const editBtn = document.createElement("button");
+          editBtn.textContent = "Edit";
+          editBtn.classList.add("csv-btn", "edit");
+          
+          // MODIFIED: Change to use our new edit handler instead of the template modal
+          editBtn.addEventListener("click", () => handleEditOffer(offer));
 
-        const removeBtn = document.createElement("button");
-        removeBtn.textContent = "Remove";
-        removeBtn.classList.add("csv-btn", "danger");
-        removeBtn.onclick = () => showConfirmDeleteModal(offer);
+          const removeBtn = document.createElement("button");
+          removeBtn.textContent = "Remove";
+          removeBtn.classList.add("csv-btn", "danger");
+          removeBtn.onclick = () => showConfirmDeleteModal(offer);
 
-        const buttonGroup = document.createElement("div");
-        buttonGroup.classList.add("button-group-inline");
-        buttonGroup.appendChild(editBtn);
-        buttonGroup.appendChild(removeBtn);
+          const buttonGroup = document.createElement("div");
+          buttonGroup.classList.add("button-group-inline");
+          buttonGroup.appendChild(editBtn);
+          buttonGroup.appendChild(removeBtn);
 
-        li.appendChild(offerText);
-        li.appendChild(buttonGroup);
-        offerList.appendChild(li);
+          li.appendChild(offerText);
+          li.appendChild(buttonGroup);
+          offerList.appendChild(li);
+        }
       });
     }
 
@@ -250,9 +521,40 @@ if (window.location.pathname.includes("offer.html")) {
       };
     }
 
-    loadOffers();
+    // Make loadOffers accessible globally for the page
+    window.loadOffers = loadOffers;
   });
 }
+
+// Function to wrap selected text with braces
+function wrapSelectedWithBraces(textareaId) {
+  const textarea = document.getElementById(textareaId || "promoDescriptionInput");
+  if (!textarea) return;
+
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+
+  if (start === end) {
+    alert("Please highlight a word to mark as editable.");
+    return;
+  }
+
+  const text = textarea.value;
+  const selected = text.substring(start, end);
+
+  // Wrap the selected text with curly braces
+  const updated = text.slice(0, start) + `{${selected}}` + text.slice(end);
+  textarea.value = updated;
+
+  // Re-position cursor
+  const newPos = start + selected.length + 2;
+  textarea.focus();
+  textarea.setSelectionRange(newPos, newPos);
+}
+
+// Make the function available globally
+window.wrapSelectedWithBraces = wrapSelectedWithBraces;
+
 // ======================
 // IMPORT PAGE LOGIC (offerImport.html)
 // ========================
@@ -274,10 +576,35 @@ if (window.location.pathname.endsWith("offerImport.html")) {
       selectedOfferName.textContent = currentOffer;
     }
        
-
-
     let selectedLanguage = "EN";
 
+    // NEW CODE: Check if table already has data and show buttons accordingly
+    function checkTableHasData() {
+      if (!tableBody) return false;
+      
+      const rows = tableBody.querySelectorAll("tr");
+      for (const row of rows) {
+        const cells = row.querySelectorAll("td");
+        for (const cell of cells) {
+          if (cell.textContent.trim() !== "") {
+            return true; // Found non-empty cell
+          }
+        }
+      }
+      return false;
+    }
+    
+    // NEW CODE: Show CREATE CSV button if table has data
+    if (checkTableHasData()) {
+      if (createCSVBtn) createCSVBtn.style.display = "inline-block";
+      if (clearTableBtn) clearTableBtn.style.display = "inline-block";
+      if (importLabel) importLabel.style.display = "none";
+      if (dropZone) dropZone.style.display = "none";
+      
+      // Add visual indicator
+      document.body.classList.add("has-table-data");
+    }
+    
     if (languageSelect) {
       languageSelect.addEventListener("change", (e) => {
         selectedLanguage = e.target.value;
@@ -291,7 +618,9 @@ if (window.location.pathname.endsWith("offerImport.html")) {
     }
 
     if (createCSVBtn) {
-      createCSVBtn.style.display = "none";
+      // Remove this line to prevent hiding the button if it's already visible
+      // createCSVBtn.style.display = "none";
+      
       createCSVBtn.addEventListener("click", () => {
         const rows = [];
         const header = "PKG_CODES#Promo code#Name#Title#Description";
@@ -318,13 +647,13 @@ if (window.location.pathname.endsWith("offerImport.html")) {
         const csvObject = {
           content: csvContent,
           timestamp: new Date().toISOString(),
-          offer: currentOffer
+          offer: currentOffer,
+          language: selectedLanguage
         };
         
         const key = `csv_${currentOffer}_${selectedLanguage}`;
         localStorage.setItem(key, JSON.stringify(csvObject));
               
-
         const previewWindow = window.open("", "CSV Preview", "width=800,height=600");
         previewWindow.document.write(`
           <pre style="font-family:monospace; white-space:pre-wrap;">${csvContent}</pre>
@@ -368,6 +697,9 @@ if (window.location.pathname.endsWith("offerImport.html")) {
           createCSVBtn.style.display = "none";
           if (dropZone) dropZone.style.display = "block";
           excelInput.value = "";
+          
+          // NEW CODE: Update body class
+          document.body.classList.remove("has-table-data");
         }
       });
     }
@@ -409,7 +741,10 @@ if (window.location.pathname.endsWith("offerImport.html")) {
         const expectedHeaders = ["PKG_CODES", "Promo Code", "Name", "Title", "Description"];
         const headers = jsonData[0] ? jsonData[0].map(h => h?.toString().trim().toLowerCase()) : [];
 
-        const headersMatch = expectedHeaders.every((h, i) => headers[i] === h.toLowerCase());
+        // Check if headers match (case insensitive)
+        const headersMatch = expectedHeaders.every((h, i) => 
+          headers[i] && headers[i].toLowerCase() === h.toLowerCase()
+        );
 
         if (!headersMatch) {
           alert("Incorrect file format.\nExpected headers:\n" + expectedHeaders.join(", ") +
@@ -436,13 +771,38 @@ if (window.location.pathname.endsWith("offerImport.html")) {
         clearTableBtn.style.display = "inline-block";
         createCSVBtn.style.display = "inline-block";
         if (dropZone) dropZone.style.display = "none";
+        
+        // NEW CODE: Add body class indicator
+        document.body.classList.add("has-table-data");
+        
+        // NEW CODE: Extra check to ensure button is visible
+        setTimeout(() => {
+          if (createCSVBtn) createCSVBtn.style.display = "inline-block";
+        }, 100);
       };
 
       reader.readAsArrayBuffer(file);
     }
+    
+    // NEW CODE: Add direct watch for table changes to show/hide buttons
+    if (tableBody) {
+      // Watch for changes to table content
+      const observer = new MutationObserver(function(mutations) {
+        const hasData = checkTableHasData();
+        if (hasData && createCSVBtn) {
+          createCSVBtn.style.display = "inline-block";
+          document.body.classList.add("has-table-data");
+        }
+      });
+      
+      observer.observe(tableBody, { 
+        childList: true, 
+        subtree: true, 
+        characterData: true 
+      });
+    }
   });
 }
-
 
 // ========================
 // SAVED CSV PAGE LOGIC (savedCSVs.html)
@@ -454,15 +814,6 @@ if (window.location.pathname.includes("savedCSVs.html")) {
     const csvSearch = document.getElementById("csvSearch");
     const monthFilter = document.getElementById("monthFilter");
     const applyFilterBtn = document.getElementById("applyFilterBtn");
-    const promoCodeDropdown = document.getElementById("selectedPromoCode");
-    const promoCodeNextBtn = document.getElementById("promoCodeNextBtn");
-
-    if (promoCodeDropdown && promoCodeNextBtn) {
-      promoCodeDropdown.addEventListener("change", () => {
-      promoCodeNextBtn.disabled = promoCodeDropdown.value === "";
-    });
-}
-
 
     let searchTerm = "";
     let selectedMonth = "";
@@ -600,6 +951,10 @@ if (window.location.pathname.includes("savedCSVs.html")) {
   });
 }
 
+// ========================
+// GLOBAL FUNCTIONS 
+// ========================
+
 function viewCSV(key) {
   // Prevent accidental modal trigger
   if (!key || typeof key !== "string" || !key.startsWith("csv_")) return;
@@ -633,7 +988,6 @@ function viewCSV(key) {
   }
 }
 
-
 function downloadCSV(key) {
   const raw = localStorage.getItem(key);
   let parsed;
@@ -647,10 +1001,13 @@ function downloadCSV(key) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = key.replace("csv_", "") + ".csv";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Extract just the language code from the key
+  const match = key.match(/^csv_(.+?)_(\w{2})$/);
+  const langCode = match ? match[2] : "EN"; // Default to EN if no match
+  link.download = `${langCode}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function deleteCSV(key, btn) {
@@ -676,6 +1033,8 @@ function closeModal() {
 
 function showToast(message) {
   const toast = document.getElementById("toast");
+  if (!toast) return;
+  
   toast.textContent = message;
   toast.classList.add("show");
   setTimeout(() => {
@@ -683,13 +1042,40 @@ function showToast(message) {
   }, 3000);
 }
 
-// === Multi-step Add Offer Modal ===
+function wrapSelectedWithBraces(textareaId) {
+  const textarea = document.getElementById(textareaId || "promoDescriptionInput");
+  if (!textarea) return;
 
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+
+  if (start === end) {
+    alert("Please highlight a word to mark as editable.");
+    return;
+  }
+
+  const text = textarea.value;
+  const selected = text.substring(start, end);
+
+  // Wrap the selected text with curly braces
+  const updated = text.slice(0, start) + `{${selected}}` + text.slice(end);
+  textarea.value = updated;
+
+  // Re-position cursor
+  const newPos = start + selected.length + 2;
+  textarea.focus();
+  textarea.setSelectionRange(newPos, newPos);
+}
+
+// ========================
+// MULTI-STEP ADD OFFER MODAL LOGIC
+// ========================
+
+// Global variables
 let addedPromoCodes = [];
-let usedPromoCodes = [];
 let currentStep = 1;
-let selectedPromoCode = null;
 
+// Step navigation
 function goToStep(stepNumber) {
   // Hide all steps
   document.querySelectorAll(".add-offer-step").forEach(step => {
@@ -702,7 +1088,7 @@ function goToStep(stepNumber) {
     step.classList.add("active");
     currentStep = stepNumber;
 
-    // 👇 👇 👇 New logic here
+    // Update UI based on step
     if (stepNumber === 3) {
       const name = document.getElementById("offerNameInput").value.trim();
       const offerData = JSON.parse(localStorage.getItem(`offerData_${name}`)) || {};
@@ -713,73 +1099,61 @@ function goToStep(stepNumber) {
       const saveAndNextBtn = document.getElementById("saveAndNextBtn");
       const saveFinalButton = document.getElementById("saveFinalButton");
 
-      // If only one promo or all others are already filled, just show Save
+      // If only one promo or all others are already filled, just show final Save button
       if (totalPromos === 1 || filledCount === totalPromos - 1) {
-        saveAndNextBtn.style.display = "none";
-        saveFinalButton.style.display = "inline-block";
+        if (saveAndNextBtn) saveAndNextBtn.style.display = "none";
+        if (saveFinalButton) saveFinalButton.style.display = "inline-block";
       } else {
-        saveAndNextBtn.style.display = "inline-block";
-        saveFinalButton.style.display = "none";
+        if (saveAndNextBtn) saveAndNextBtn.style.display = "inline-block";
+        if (saveFinalButton) saveFinalButton.style.display = "none";
       }
     }
 
-    // Already present: generate review on step 4
+    // Generate review on step 4
     if (stepNumber === 4) {
       generateReview();
     }
   }
 
-  // Step indicator
+  // Update step indicator
   const indicators = document.querySelectorAll(".step-indicator .step");
   indicators.forEach((el, idx) => {
     el.classList.toggle("active", idx === stepNumber - 1);
   });
 }
 
-
-  const indicators = document.querySelectorAll(".step-indicator .step");
-  indicators.forEach((el, idx) => {
-    el.classList.toggle("active", idx === stepNumber - 1);
-  });
-
-
-// ✅ Now globally defined so the "Next" button in Step 2 works
+// Handle promo code selection and proceeding to next step
 function handlePromoCodeProceed() {
-  const selectedCode = document.getElementById("selectedPromoCode").value;
+  // Get selected promo code from the list
+  const selectedElement = document.querySelector(".promo-code-item.selected");
+  if (!selectedElement) {
+    alert("Please select a promo code before continuing.");
+    return;
+  }
+
+  const selectedCode = selectedElement.textContent.replace("✕", "").trim();
   if (!selectedCode) {
     alert("Please select a promo code before continuing.");
     return;
   }
 
-  // Inside the function where you enter Step 3 (e.g. goToStep(3) or handlePromoCodeProceed)
-if (addedPromoCodes.length === 1) {
-  document.getElementById("saveAndNextBtn").style.display = "none";
-  document.getElementById("saveFinalButton").style.display = "inline-block";
-} else {
-  document.getElementById("saveAndNextBtn").style.display = "inline-block";
-  document.getElementById("saveFinalButton").style.display = "none";
-}
-
-
+  // Store the selected promo code
   localStorage.setItem("currentPromoCode", selectedCode);
+  
+  // Update UI for single promo code case
+  if (addedPromoCodes.length === 1) {
+    const saveAndNextBtn = document.getElementById("saveAndNextBtn");
+    const saveFinalButton = document.getElementById("saveFinalButton");
+    
+    if (saveAndNextBtn) saveAndNextBtn.style.display = "none";
+    if (saveFinalButton) saveFinalButton.style.display = "inline-block";
+  }
+
+  // Proceed to step 3
   goToStep(3);
 }
 
-
-// 📌 Add this right after goToStep():
-function insertPlaceholder(placeholder) {
-  const textarea = document.getElementById("promoDescription");
-  if (!textarea) return;
-  
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const text = textarea.value;
-
-  textarea.value = text.slice(0, start) + placeholder + text.slice(end);
-  textarea.focus();
-  textarea.setSelectionRange(start + placeholder.length, start + placeholder.length);
-}
-
+// Mark selected text as changeable by wrapping with braces
 function wrapSelectedWithBraces() {
   const textarea = document.getElementById("promoDescriptionInput");
   if (!textarea) return;
@@ -805,14 +1179,21 @@ function wrapSelectedWithBraces() {
   textarea.setSelectionRange(newPos, newPos);
 }
 
-
-
+// Add promo code in the multi-step flow
 function addPromoCodeStep() {
   const input = document.getElementById("promoCodeInputStep");
   const list = document.getElementById("promoCodeListStep");
+  const nextBtn = document.getElementById("promoCodeNextBtn");
+  
+  if (!input || !list) return;
+  
   const code = input.value.trim();
 
-  if (!code || addedPromoCodes.includes(code)) return;
+  if (!code || addedPromoCodes.includes(code)) {
+    if (!code) alert("Please enter a promo code");
+    if (addedPromoCodes.includes(code)) alert("This promo code is already added");
+    return;
+  }
 
   addedPromoCodes.push(code);
 
@@ -831,7 +1212,7 @@ function addPromoCodeStep() {
     li.classList.add("selected");
 
     // Enable Next button
-    document.getElementById("promoCodeNextBtn").disabled = false;
+    if (nextBtn) nextBtn.disabled = false;
 
     // Store selected code
     localStorage.setItem("currentPromoCode", code);
@@ -849,59 +1230,45 @@ function addPromoCodeStep() {
     // If it was selected, reset state
     if (li.classList.contains("selected")) {
       localStorage.removeItem("currentPromoCode");
-      document.getElementById("promoCodeNextBtn").disabled = true;
+      if (nextBtn) nextBtn.disabled = true;
     }
   };
+  
   li.appendChild(removeBtn);
   list.appendChild(li);
 
   input.value = "";
 
   // Auto-select if it's the only one
-if (addedPromoCodes.length === 1) {
-  dropdown.value = code;
-  document.getElementById("promoCodeNextBtn").disabled = false;
-}
-
-// Hide Save & Next if there's only one promo
-if (addedPromoCodes.length === 1) {
-  document.getElementById("saveAndNextBtn").style.display = "none";
-  document.getElementById("saveFinalButton").style.display = "inline-block";
-}
-
-}
-
-
-  document.getElementById("promoCodeNextBtn").disabled = !selectedPromoCode;
-
-
-  function handlePromoCodeProceed() {
-    const selected = document.querySelector(".promo-code-item.selected");
-    if (!selected) {
-      alert("Please select a promo code before continuing.");
-      return;
-    }
-  
-    const code = selected.dataset.code;
-    localStorage.setItem("currentPromoCode", code);
-    goToStep(3);
+  if (addedPromoCodes.length === 1) {
+    li.click(); // This triggers the click event to select it
   }
-  
+}
 
-
+// Generate review summary
 function generateReview() {
   const name = document.getElementById("offerNameInput").value.trim();
   const summary = document.getElementById("reviewOfferSummary");
-  const description = document.getElementById("promoDescriptionInput").value.trim();
+  if (!summary) return;
+  
+  // Get offer data with all promo codes and descriptions
+  const offerData = JSON.parse(localStorage.getItem(`offerData_${name}`)) || {};
+  const descriptions = offerData.descriptions || {};
+  
+  let descriptionsList = '';
+  Object.entries(descriptions).forEach(([promoCode, description]) => {
+    descriptionsList += `<p><strong>${promoCode}:</strong> ${description || "<em>No description</em>"}</p>`;
+  });
 
   summary.innerHTML = `
     <p><strong>Offer Name:</strong> ${name}</p>
     <p><strong>Promo Codes:</strong> ${addedPromoCodes.join(", ")}</p>
-    <p><strong>Description:</strong> ${description || "<em>No description provided</em>"}</p>
+    <h3>Descriptions:</h3>
+    ${descriptionsList || "<p><em>No descriptions provided</em></p>"}
   `;
 }
 
-
+// Save the current promo code description and handle next steps
 function saveFinalOffer() {
   const name = document.getElementById("offerNameInput").value.trim();
   const description = document.getElementById("promoDescriptionInput").value.trim();
@@ -914,16 +1281,29 @@ function saveFinalOffer() {
   let offerData = JSON.parse(localStorage.getItem(`offerData_${name}`)) || {
     name,
     title: name,
-    promoCodes: addedPromoCodes,
+    promoCodes: [],
     descriptions: {}
   };
 
+  // Make sure promoCodes array is up to date
+  offerData.promoCodes = addedPromoCodes;
+  
   // Save this promo code's description
   offerData.descriptions[currentPromoCode] = description;
   localStorage.setItem(`offerData_${name}`, JSON.stringify(offerData));
+  
+  // Update offerRepository list
+  let offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
+  if (!offers.includes(name)) {
+    offers.push(name);
+    localStorage.setItem("offerRepository", JSON.stringify(offers));
+  }
 
-  // Remove current promoCode from localStorage
+  // Remove current promoCode from localStorage as we're done with it
   localStorage.removeItem("currentPromoCode");
+  
+  // Set this as the current offer
+  localStorage.setItem("currentOffer", name);
 
   // Find the next promo code that has not been filled yet
   const remaining = addedPromoCodes.find(code => !offerData.descriptions[code]);
@@ -933,56 +1313,82 @@ function saveFinalOffer() {
     goToStep(2); // Go back to Step 2
     highlightPromoCodeInStep2(remaining);
     document.getElementById("promoDescriptionInput").value = "";
-    return;
+    
+    // Update button visibility
+    const saveAndNextBtn = document.getElementById("saveAndNextBtn");
+    const saveFinalButton = document.getElementById("saveFinalButton");
+    
+    // Calculate how many promo codes are left to fill
+    const remainingCount = addedPromoCodes.filter(code => !offerData.descriptions[code]).length;
+    
+    // If this is the last one to fill, show the final save button
+    if (remainingCount <= 1) {
+      if (saveAndNextBtn) saveAndNextBtn.style.display = "none";
+      if (saveFinalButton) saveFinalButton.style.display = "inline-block";
+    } else {
+      if (saveAndNextBtn) saveAndNextBtn.style.display = "inline-block";
+      if (saveFinalButton) saveFinalButton.style.display = "none";
+    }
+    
+    return; // Don't continue to review step
   }
-
+  
   // If all promo codes are filled, go to final summary step
   generateReview();
   goToStep(4);
-
-  // Update button visibility based on remaining promo codes
-// Update button visibility
-const saveAndNextBtn = document.getElementById("saveAndNextBtn");
-const saveFinalButton = document.getElementById("saveFinalButton");
-
-// Only one promo or all have been filled – show only "Save Offer"
-const allFilled = addedPromoCodes.every(code => offerData.descriptions[code]);
-const onlyOnePromo = addedPromoCodes.length === 1;
-
-if (allFilled || onlyOnePromo) {
-  saveAndNextBtn.style.display = "none";
-  saveFinalButton.style.display = "inline-block";
-} else {
-  saveAndNextBtn.style.display = "inline-block";
-  saveFinalButton.style.display = "none";
-}
+  
+  // Hide the add offer modal and show the manage offers modal after saving
+  setTimeout(() => {
+    document.getElementById("addOfferModal").style.display = "none";
+    const offerModal = document.getElementById("offerModal");
+    if (offerModal) offerModal.style.display = "flex";
+    if (window.loadOffers) window.loadOffers(); // Reload offers list if function exists
+  }, 100);
 }
 
+// Helper function to highlight a promo code in step 2
 function highlightPromoCodeInStep2(code) {
   document.querySelectorAll(".promo-code-item").forEach(item => {
-    item.classList.toggle("selected", item.dataset.code === code);
+    const itemCode = item.textContent.replace("✕", "").trim();
+    item.classList.toggle("selected", itemCode === code);
   });
 
-  document.getElementById("promoCodeNextBtn").disabled = !code;
+  const nextBtn = document.getElementById("promoCodeNextBtn");
+  if (nextBtn) nextBtn.disabled = !code;
 }
 
+// Final save of the complete offer
 function finalizeOffer() {
-  const offerName = localStorage.getItem("currentOffer");
-  if (!offerName) {
-    alert("No offer selected.");
+  const name = document.getElementById("offerNameInput").value.trim();
+  
+  if (!name) {
+    alert("Offer name is required.");
     return;
   }
 
-  let offerData = JSON.parse(localStorage.getItem(`offerData_${offerName}`));
-  if (!offerData) {
-    alert("No offer data found.");
-    return;
-  }
+  // Get the current offer data
+  let offerData = JSON.parse(localStorage.getItem(`offerData_${name}`)) || {
+    name,
+    title: name,
+    promoCodes: addedPromoCodes,
+    descriptions: {}
+  };
+  
+  // Make sure all promo codes are in the promoCodes array
+  offerData.promoCodes = [...new Set([...offerData.promoCodes, ...addedPromoCodes])]; 
 
-  // now safely proceed with updating offerData...
-
-
+  // Save to localStorage
   localStorage.setItem(`offerData_${name}`, JSON.stringify(offerData));
+  
+  // Add to offer repository if not already there
+  let offers = JSON.parse(localStorage.getItem("offerRepository") || "[]");
+  if (!offers.includes(name)) {
+    offers.push(name);
+    localStorage.setItem("offerRepository", JSON.stringify(offers));
+  }
+  
+  // Set as current offer
+  localStorage.setItem("currentOffer", name);
 
   // Reset modal and inputs
   document.getElementById("addOfferModal").style.display = "none";
@@ -992,12 +1398,13 @@ function finalizeOffer() {
   addedPromoCodes = [];
   goToStep(1);
 
-  alert("Full offer saved successfully!");
-  loadOffers(); // 👈 Refreshes the Manage Offers list immediately
-  localStorage.setItem("currentOffer", name);
-
-
+  // Show success message
+  showToast("Full offer saved successfully!");
+  
+  // Show manage offers modal and refresh list
+  setTimeout(() => {
+    const offerModal = document.getElementById("offerModal");
+    if (offerModal) offerModal.style.display = "flex";
+    if (window.loadOffers) window.loadOffers();
+  }, 100);
 }
-
-
-

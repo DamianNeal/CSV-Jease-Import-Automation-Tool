@@ -3,41 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <img src="images/ExploraLogo.png" alt="Explora Logo" class="logo2">
   <title>Saved CSVs</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=SangBleu+Republic&display=swap" rel="stylesheet">
 </head>
 <body>
   <button id="returnHome" class="return-btn">←</button>
+  
   <div class="container">
+    <!-- Separated logo into its own container -->
+    <div class="logo-container">
+      <img src="images/ExploraLogo.png" alt="Explora Logo" class="logo2">
+    </div>
+    
     <h1 class="csv-title">CSV HISTORY</h1>
-    <div class="csv-filter-bar">
-      <input type="text" id="csvSearch" placeholder="Search offers or languages..">
-      <input type="month" id="monthFilter">
-      <button id="applyFilterBtn">Search</button>
-    </div>
-   
-    <div id="csvModal" class="csv-modal">
-      <div class="csv-modal-content">
-        <button class="close-modal" onclick="closeModal()">&times;</button>
-        <h2>CSV Preview</h2>
-        <pre id="csvModalContent" class="csv-content"></pre>
-        <button id="copyCSVBtn" class="csv-btn">Copy to Clipboard</button>
+    
+    <div class="csv-history-container">
+      <!-- Search and filter bar (stays fixed) -->
+      <div class="csv-filter-bar">
+        <input type="text" id="csvSearch" placeholder="Search offers or languages..">
+        <input type="month" id="monthFilter">
+        <button id="applyFilterBtn" class="csv-btn">Search</button>
       </div>
-    </div>
-    
-    
-    
-       
-    <div id="csvList" class="saved-list"></div>
-  </div>
-  <div id="csvModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <span class="close-modal" onclick="closeModal()">&times;</span>
-      <pre id="csvModalContent"></pre>
+      
+      <!-- Scrollable list container -->
+      <div class="csv-list-wrapper">
+        <div id="csvList" class="saved-list"></div>
+      </div>
     </div>
   </div>
   
+  <!-- CSV Modal -->
+  <div id="csvModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <h2>CSV Preview</h2>
+      <pre id="csvModalContent" class="csv-content"></pre>
+      <button id="copyCSVBtn" class="csv-btn">Copy to Clipboard</button>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
