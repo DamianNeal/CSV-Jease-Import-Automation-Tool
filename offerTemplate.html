@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Template - CSV & Jease Tool</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=SangBleu+Republic&display=swap" rel="stylesheet">
+  <style>
+    /* Immediate fixes for sizing issues */
+    body {
+      overflow: auto !important;
+      padding-bottom: 60px;
+    }
+    
+    .container {
+      max-width: 90%;
+      margin: 0 auto;
+      padding-bottom: 40px;
+    }
+    
+    .logo {
+      height: auto;
+      max-height: 200px;
+      width: auto;
+    }
+    
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 30px;
+    }
+    
+    .template-info,
+    .upload-section,
+    .preview-section,
+    .options-section {
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 15px;
+    }
+    
+    .drop-zone {
+      padding: 15px;
+      margin: 15px auto;
+      max-width: 100%;
+      position: relative;
+    }
+    
+    .preview-container {
+      overflow-x: auto;
+      max-width: 100%;
+    }
+    
+    /* Make buttons accessible */
+    .button-group {
+      position: relative;
+      margin: 20px auto;
+      padding: 10px;
+      z-index: 100;
+    }
+    
+    /* Ensure toast doesn't block interface */
+    .toast {
+      z-index: 9999;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      top: auto;
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .template-info h2 {
+        font-size: 1.3rem;
+      }
+      
+      .upload-section h2,
+      .preview-section h2,
+      .options-section h2 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button id="returnToOffers" class="return-btn">←</button>
+
+  <div class="container">
+    <img src="images/ExploraLogo.png" alt="Explora Logo" class="logo" />
+    <h1>ADOBE<br>OFFER</h1>
+    
+    <div class="template-info">
+      <h2>Template: <span id="templateName">Loading...</span></h2>
+      <p class="template-stats">Contains <span id="promoCodeCount">0</span> promo codes with descriptions</p>
+    </div>
+    
+    <div class="upload-section">
+      <h2>Upload Codes</h2>
+      <p class="note">Upload Excel/CSV file with PKG_Codes and Promo Codes.</p>
+      
+      <div class="drop-zone" id="templateFileDropZone">
+        <p>Drag & drop Excel file or click to browse</p>
+        <input type="file" id="templateFileInput" accept=".xlsx,.xls,.csv" class="file-input" />
+      </div>
+      
+      <div class="file-info">
+        <p>File must contain these columns:</p>
+        <ul>
+          <li>PKG_Code - The package code</li>
+          <li>Promo Code - The promotion code</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="preview-section hidden" id="previewSection">
+      <h2>Preview</h2>
+      <div class="preview-container">
+        <table id="previewTable" class="preview-table">
+          <!-- Preview content will be populated here -->
+        </table>
+      </div>
+    </div>
+    
+    <div class="button-group">
+      <button id="generateCsvBtn" class="csv-btn primary" disabled>Generate CSV</button>
+    </div>
+    
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

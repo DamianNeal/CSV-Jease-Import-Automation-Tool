@@ -18,6 +18,36 @@
   font-style: normal;
 }
 
+
+/* Consistent button hover effects */
+button, 
+.csv-btn,
+.return-btn,
+#manageOffersBtn,
+.view-csv-btn,
+.add-btn,
+.edit-description-btn, 
+.remove-btn, 
+.remove-promo-btn {
+  background-color: #8c6e1a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);;
+}
+
+button:hover:not(:disabled), 
+.csv-btn:hover:not(:disabled),
+.return-btn:hover,
+#manageOffersBtn:hover,
+.view-csv-btn:hover,
+.add-btn:hover,
+.edit-description-btn:hover, 
+.remove-btn:hover, 
+.remove-promo-btn:hover {
+  background-color: #8c6e1a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
 body {
   font-family: 'Poppins', sans-serif;
   background: #1d2244;
@@ -51,8 +81,9 @@ h1 {
 
 .button-group {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   justify-content: center;
+  margin-top: 25px;
 }
 
 button {
@@ -428,21 +459,22 @@ thead th {
   top: 20px;
   right: 20px;
   background-color: #6c551f;
-  color: white;
   padding: 10px 20px;
-  font-weight: bold;
-  font-size: 16px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
   z-index: 1000;
   transition: background-color 0.3s ease, color 0.3s ease;
   box-shadow: 0 0 2px #0a0b0b;
+  font-weight: bold;
+  font-size: 18px;
+  transition: all 0.3s ease;
 }
 
 #manageOffersBtn:hover {
-  background-color: #fff;
-  color: #1d2244;
+  background-color: #8c6e1a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 .offer-actions {
@@ -762,7 +794,23 @@ thead th {
 
 .add-offer-step {
   display: none;
-  padding: 20px 0;
+  padding: 30px 10px;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.add-offer-step h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 1.6rem;
+  color: #1d2244;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #6c551f;
+  display: inline-block;
 }
 
 .add-offer-step.active {
@@ -771,18 +819,27 @@ thead th {
 
 .form-label {
   display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
+  font-weight: 600;
+  margin-bottom: 8px;
   color: #333;
+  font-size: 1rem;
 }
 
 .form-control {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
   font-size: 16px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.form-control:focus {
+  border-color: #6c551f;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 0 0 3px rgba(108, 85, 31, 0.2);
+  outline: none;
 }
 
 .placeholder-buttons {
@@ -805,15 +862,25 @@ thead th {
 }
 
 .review-box {
-  padding: 15px;
-  background: #f8f8f8;
+  padding: 20px;
+  background: #f9f9fa;
   border: 1px solid #ddd;
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .review-box p {
   margin: 5px 0;
+}
+
+.review-box h3 {
+  color: #1d2244;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
 }
 
 .csv-btn.secondary {
@@ -828,27 +895,63 @@ thead th {
 
 .step-indicator {
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 20px;
+  justify-content: center;
+  gap: 30px;
+  margin: 0 auto 30px;
+  position: relative;
+  max-width: 400px;
+  padding: 0 20px;
 }
 
 .step {
-  background: #ccc;
-  color: #1d2244;
   width: 36px;
   height: 36px;
   border-radius: 50%;
+  background: #ccc;
+  color: #1d2244;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  position: relative;
+  z-index: 1;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .step.active {
   background-color: #6c551f;
   color: #fff;
+  border-color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
+
+.step.completed {
+  background-color: #2e7d32;
+  color: #fff;
+}
+
+  /* Add step labels */
+.step::after {
+  content: attr(data-label);
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: normal;
+  color: #666;
+}
+
+.step.active::after {
+  font-weight: bold;
+  color: #1d2244;
+}
+
 
 .promo-button {
   background: #f0f0f0;
@@ -905,17 +1008,15 @@ thead th {
 }
 
 .promo-code-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #f0f0f0;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 10px 14px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  font-weight: 600;
-  color: #333;
-  max-width: 350px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #f9f9f9;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  max-width: none;
 }
 
 .promo-code-item span {
@@ -931,6 +1032,12 @@ thead th {
   cursor: pointer;
   font-size: 14px;
   transition: background 0.2s ease;
+}
+
+.promo-code-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  border-color: #ccc;
 }
 
 .promo-code-item button:hover {
@@ -1276,6 +1383,487 @@ body.has-table-data #createCSV {
   padding: 20px;
   color: #999;
   font-style: italic;
+}
+
+/* Promo code status indicators styling */
+.promo-code-item {
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.promo-code-item.active {
+  border-color: #6c551f;
+  background-color: #fffbf0;
+  box-shadow: 0 3px 8px rgba(108, 85, 31, 0.2);
+}
+
+  /* Enhanced Promo Code Container */
+  .promo-code-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .promo-code-text {
+    font-weight: 600;
+    flex-grow: 1;
+    font-size: 1.05rem;
+    color: #333;
+  }
+
+.promo-code-status {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.status-indicator svg {
+  margin-right: 6px;
+}
+
+.status-configured {
+  color: #2e7d32;
+  background-color: #e8f5e9;
+  border: 1px solid #c8e6c9;
+}
+
+.status-pending {
+  color: #f57c00;
+  background-color: #fff3e0;
+  border: 1px solid #ffe0b2;
+}
+
+.status-not-configured {
+  color: #757575;
+  background-color: #f5f5f5;
+}
+
+.remove-promo-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-promo-btn:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+  transform: scale(1.1);
+}
+
+/* Updated promo code status indicators styling */
+.promo-code-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.edit-promo-btn {
+  background: none;
+  border: none;
+  color: #18ee4e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.edit-promo-btn:hover {
+  background-color: rgba(0, 102, 204, 0.1);
+  transform: scale(1.1);
+}
+
+.promo-counter {
+  font-size: 13px;
+  margin-bottom: 15px;
+  color: #666;
+  text-align: right;
+  background-color: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  float: right;
+}
+
+/* Promo configuration modal styling */
+.config-modal-title {
+  margin-bottom: 25px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #6c551f;
+  color: #1d2244;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Review step styling */
+.review-promo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.review-promo-list li {
+  margin-bottom: 15px;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.review-promo-list li strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #1d2244;
+  font-size: 1.1rem;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.review-promo-list li p {
+  color: #555;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 3-step process styling */
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 30px;
+}
+
+.step-indicator::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 88px;
+  right: 88px;
+  height: 2px;
+  background-color: #ccc;
+  z-index: 0;
+}
+
+/* Enhance the existing note styling */
+.note {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  border-radius: 6px;
+  border-left: 4px solid #6c551f;
+}
+
+/* Add a special highlight for the pending codes warning */
+.pending-codes-warning {
+  background-color: #fff3e0;
+  color: #f57c00;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+/* Template Page 
+
+/* Template Page Specific Styling */
+.template-info {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #fff;
+}
+
+.template-info h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.template-stats {
+  font-size: 1.1rem;
+  color: #ccc;
+}
+
+.upload-section {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  color: #fff;
+}
+
+.upload-section h2 {
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  color: #fff;
+  text-align: center;
+}
+
+.file-info {
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  font-size: 0.95rem;
+}
+
+.file-info ul {
+  margin: 10px 0 10px 20px;
+}
+
+.file-info li {
+  margin-bottom: 5px;
+  list-style-type: disc;
+}
+
+.preview-section {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  color: #fff;
+}
+
+.preview-section h2 {
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  color: #fff;
+  text-align: center;
+}
+
+.preview-container {
+  overflow-x: auto;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.preview-table th {
+  background-color: #1d2244;
+  color: #fff;
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.preview-table td {
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.preview-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Row status colors */
+.row-valid {
+  background-color: #e8f5e9;
+}
+
+.row-warning {
+  background-color: #fff3e0;
+}
+
+.row-error {
+  background-color: #ffebee;
+}
+
+.options-section {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  color: #fff;
+}
+
+.options-section h2 {
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  color: #fff;
+  text-align: center;
+}
+
+.option-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.toggle-option {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.toggle-option input[type="checkbox"] {
+  margin-right: 10px;
+  width: 18px;
+  height: 18px;
+}
+
+.sub-options {
+  width: 100%;
+  margin-top: 10px;
+  margin-left: 30px;
+  display: flex;
+  gap: 15px;
+}
+
+.sub-options .form-control {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* Toast variations */
+.toast-success {
+  background-color: #2e7d32;
+}
+
+.toast-warning {
+  background-color: #f57c00;
+}
+
+.toast-error {
+  background-color: #c62828;
+}
+
+.toast-info {
+  background-color: #0277bd;
+}
+
+/* Drop zone states */
+.drop-zone.loading {
+  border-color: #6c551f;
+  background-color: rgba(108, 85, 31, 0.2);
+  color: #fff;
+}
+
+.drop-zone.loading p {
+  opacity: 0.7;
+}
+
+.file-input {
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+/* Add this CSS to your style.css or in a <style> tag in the head of your HTML */
+
+/* Fix for hidden preview section */
+.preview-section.hidden {
+  display: none;
+}
+
+/* When the hidden class is removed, ensure table is visible */
+.preview-section {
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* Make sure table is visible and properly formatted */
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.preview-table th,
+.preview-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.preview-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+/* Status row styles */
+.preview-table tr.row-valid {
+  background-color: #f0fff0;
+}
+
+.preview-table tr.row-warning {
+  background-color: #fffbe6;
+}
+
+.preview-table tr.row-error {
+  background-color: #fff0f0;
+}
+
+/* Animation for loading state */
+@keyframes pulse-border {
+  0% { border-color: #6c551f; }
+  50% { border-color: #fff; }
+  100% { border-color: #6c551f; }
+}
+
+.drop-zone.loading {
+  animation: pulse-border 2s infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .template-info h2 {
+    font-size: 1.5rem;
+  }
+  
+  .upload-section,
+  .preview-section,
+  .options-section {
+    padding: 15px;
+  }
+  
+  .sub-options {
+    flex-direction: column;
+    gap: 10px;
+  }
 }
 
 /* Responsiveness */
